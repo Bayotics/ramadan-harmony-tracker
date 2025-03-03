@@ -63,7 +63,7 @@ export const fetchPrayerTimes = async (latitude: number, longitude: number): Pro
   } catch (error) {
     console.error('Error fetching prayer times:', error);
     // Return mock data as fallback
-    return getPrayerTimes();
+    return getMockPrayerTimes();
   }
 };
 
@@ -73,7 +73,7 @@ const formatTime = (timeString: string): string => {
 };
 
 // Mock prayer time data (used as fallback if API fails)
-export const getPrayerTimes = (date = new Date()): PrayerTime[] => {
+export const getMockPrayerTimes = (): PrayerTime[] => {
   // In a real implementation, this would call an API like Aladhan
   // For this demo, we'll return mock data
   return [
@@ -94,7 +94,7 @@ export const getCurrentTime = (): string => {
 // Get next prayer based on real prayer times
 export const getNextPrayer = (prayerTimes: PrayerTime[] = []): PrayerTime | null => {
   // If no prayer times provided, use the mock data
-  const times = prayerTimes.length > 0 ? prayerTimes : getPrayerTimes();
+  const times = prayerTimes.length > 0 ? prayerTimes : getMockPrayerTimes();
   const currentTime = getCurrentTime();
   
   for (const prayer of times) {
@@ -125,15 +125,15 @@ export const getTimeRemaining = (prayerTime: string): { hours: number; minutes: 
   };
 };
 
-// For demonstration, let's define iftar and suhoor times
+// Calculate Suhoor and Iftar times correctly based on Fajr and Maghrib
 export const getRamadanTimes = (prayerTimes: PrayerTime[] = []): { suhoor: string; iftar: string } => {
-  const times = prayerTimes.length > 0 ? prayerTimes : getPrayerTimes();
+  const times = prayerTimes.length > 0 ? prayerTimes : getMockPrayerTimes();
   
-  // Find Fajr for Suhoor (subtract 30 minutes)
+  // Suhoor time is 10 minutes before Fajr
   const fajrTime = times.find(p => p.name === 'Fajr')?.time || '04:45';
   const [fajrHours, fajrMinutes] = fajrTime.split(':').map(Number);
   let suhoorHours = fajrHours;
-  let suhoorMinutes = fajrMinutes - 30;
+  let suhoorMinutes = fajrMinutes - 10;
   
   if (suhoorMinutes < 0) {
     suhoorMinutes += 60;
@@ -142,7 +142,7 @@ export const getRamadanTimes = (prayerTimes: PrayerTime[] = []): { suhoor: strin
   
   const suhoor = `${suhoorHours.toString().padStart(2, '0')}:${suhoorMinutes.toString().padStart(2, '0')}`;
   
-  // Find Maghrib for Iftar
+  // Iftar time is exactly at Maghrib time
   const iftar = times.find(p => p.name === 'Maghrib')?.time || '19:01';
   
   return {

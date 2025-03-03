@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { getNextPrayer, getRamadanTimes, getTimeRemaining } from '../utils/prayerTimes';
+import { getNextPrayer, getRamadanTimes, getTimeRemaining, getMockPrayerTimes } from '../utils/prayerTimes';
 
 const HomeWidget: React.FC = () => {
   const nextPrayer = getNextPrayer();

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { fetchPrayerTimes, getNextPrayer, PrayerTime } from '../utils/prayerTimes';
+import { fetchPrayerTimes, getNextPrayer, PrayerTime, getMockPrayerTimes } from '../utils/prayerTimes';
 import { Bell, MapPin, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -33,7 +33,7 @@ const PrayerTimes: React.FC = () => {
             (error) => {
               console.error('Geolocation error:', error);
               // Fall back to default prayer times
-              const times = getPrayerTimes();
+              const times = getMockPrayerTimes();
               setPrayerTimes(times);
               setNextPrayer(getNextPrayer(times));
               setLocationStatus('error');
@@ -44,7 +44,7 @@ const PrayerTimes: React.FC = () => {
           );
         } else {
           // Geolocation not supported
-          const times = getPrayerTimes();
+          const times = getMockPrayerTimes();
           setPrayerTimes(times);
           setNextPrayer(getNextPrayer(times));
           setLocationStatus('error');
@@ -54,7 +54,7 @@ const PrayerTimes: React.FC = () => {
       } catch (error) {
         console.error('Error setting up prayer times:', error);
         // Fall back to default prayer times
-        const times = getPrayerTimes();
+        const times = getMockPrayerTimes();
         setPrayerTimes(times);
         setNextPrayer(getNextPrayer(times));
         setLocationStatus('error');
@@ -95,7 +95,7 @@ const PrayerTimes: React.FC = () => {
         },
         (error) => {
           console.error('Geolocation refresh error:', error);
-          const times = getPrayerTimes();
+          const times = getMockPrayerTimes();
           setPrayerTimes(times);
           setNextPrayer(getNextPrayer(times));
           setLocationStatus('error');

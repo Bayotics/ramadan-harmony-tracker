@@ -6,7 +6,7 @@ import PrayerTimes from '../components/PrayerTimes';
 import Countdown from '../components/Countdown';
 import HomeWidget from '../components/HomeWidget';
 import DailyDua from '../components/DailyDua';
-import { Moon, Sun, Book, Clock, Compass } from 'lucide-react';
+import { Moon, Sun, Book, Clock, Compass, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -110,9 +110,12 @@ const Index = () => {
             Made with love for the Ummah by Tahirah Shobaloju
           </p>
           <a 
-            href="#"
-            className="inline-block mt-2 text-islamic-blue hover:text-islamic-darkBlue font-medium transition-colors"
+            href="https://www.paypal.com/donate/?business=CB2Y4PCSEG3WU&no_recurring=0&currency_code=USD"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center mt-2 px-4 py-2 rounded-full bg-islamic-gold/10 text-islamic-gold hover:bg-islamic-gold/20 transition-colors"
           >
+            <Heart size={16} className="mr-2" />
             Support Ramadan Timekeeper
           </a>
         </div>
