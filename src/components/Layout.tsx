@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
   
   return (
-    <div className="min-h-full flex flex-col bg-pattern dark:bg-gray-900">
+    <div className="min-h-full flex flex-col bg-pattern dark:bg-gray-900 text-foreground">
       <main className="flex-1 pb-20">
         {children}
       </main>
@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-around items-center py-3">
             <Link 
               to="/" 
-              className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
             >
               <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10' : ''}`}>
                 <Home size={22} />
@@ -45,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/quran" 
-              className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
             >
               <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10' : ''}`}>
                 <Book size={22} />
@@ -55,7 +55,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/qibla" 
-              className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
             >
               <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10' : ''}`}>
                 <Compass size={22} />
@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/duas" 
-              className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
             >
               <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10' : ''}`}>
                 <Moon size={22} />
@@ -75,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/settings" 
-              className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
             >
               <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10' : ''}`}>
                 <Settings size={22} />
