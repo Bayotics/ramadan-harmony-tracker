@@ -10,10 +10,18 @@ const Quran = () => {
   const [viewMode, setViewMode] = useState<'reading' | 'listening'>('reading');
   
   const handleFeatureClick = (feature: string) => {
-    toast({
-      title: feature,
-      description: `${feature} feature selected`,
-    });
+    if (feature === 'Audio Recitation') {
+      setViewMode('listening');
+      toast({
+        title: "Listening mode activated",
+        description: "You can now listen to Quran recitation",
+      });
+    } else {
+      toast({
+        title: feature,
+        description: `${feature} feature selected`,
+      });
+    }
   };
   
   return (

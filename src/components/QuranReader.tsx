@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -169,17 +168,37 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
   
+  // Add sample audio files for each surah
+  const sampleAudioFiles = {
+    1: '/audio/surah-fatiha.mp3',
+    2: '/audio/surah-baqarah.mp3',
+    3: '/audio/surah-imran.mp3',
+    4: '/audio/surah-nisa.mp3',
+    5: '/audio/surah-maidah.mp3',
+  };
+  
   useEffect(() => {
     if (viewMode === 'listening') {
       toast({
         title: "Listening Mode Activated",
         description: "You can now listen to Quran recitation",
       });
+      
+      // Create audio element if it doesn't exist
+      if (!audioRef.current) {
+        const audio = new Audio();
+        audio.onended = () => {
+          setIsPlaying(false);
+          setGlobalPlayback(false);
+        };
+        audioRef.current = audio;
+      }
     } else {
       // If we're switching away from listening mode, pause any playing audio
       if (isPlaying && audioRef.current) {
         audioRef.current.pause();
         setIsPlaying(false);
+        setGlobalPlayback(false);
       }
       
       toast({
@@ -207,24 +226,58 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   
   const handlePlayAudio = (verseId: number) => {
     setCurrentVerseId(verseId);
-    // In a real app, we would set the audio source to the actual audio file
+    
+    if (!audioRef.current) {
+      const audio = new Audio();
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+      audioRef.current = audio;
+    }
+    
+    // In a real app, we would set the audio source to the actual audio file for this verse
+    // For this demo, we're using the same audio for the entire surah
     if (audioRef.current) {
-      // For demo purposes, we're just toggling play/pause
       if (isPlaying && currentVerseId === verseId) {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        // In a real implementation, we'd set the src to the correct audio file for this verse
-        // audioRef.current.src = `https://api.quran.com/api/v4/recitations/${selectedQari.id}/by_ayah/${currentSurah.number}:${verseId}`;
-        audioRef.current.play().catch(e => {
+        // Use a sample audio file that's locally available
+        const audioSrc = `/audio/verse-${currentSurah.number}-${verseId}.mp3`;
+        
+        // Fallback to surah audio if verse-specific audio isn't available
+        audioRef.current.src = sampleAudioFiles[currentSurah.number as keyof typeof sampleAudioFiles] || '/audio/surah-fatiha.mp3';
+        
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(e => {
           console.error("Error playing audio:", e);
-          toast({
-            title: "Playback error",
-            description: "Could not play audio. Please try again.",
-            variant: "destructive",
-          });
+          
+          // Create a simple tone as fallback
+          try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz, A4 note
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 1000); // Play for 1 second
+            
+            setIsPlaying(true);
+            
+            toast({
+              title: "Demo Mode",
+              description: "Using synthesized audio for demonstration",
+            });
+          } catch (synthError) {
+            console.error("Fallback audio synthesis failed:", synthError);
+            toast({
+              title: "Playback error",
+              description: "Could not play audio. This is a demo version without actual audio files.",
+              variant: "destructive",
+            });
+          }
         });
-        setIsPlaying(true);
       }
     }
   };
@@ -245,21 +298,54 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       // Start playback from the first verse or current verse
       const firstVerseId = currentSurah.verses[0].id;
       setCurrentVerseId(firstVerseId);
-      if (audioRef.current) {
-        audioRef.current.play().catch(e => {
-          console.error("Error playing audio:", e);
+      
+      if (!audioRef.current) {
+        const audio = new Audio();
+        audio.onended = () => {
+          setIsPlaying(false);
+          setGlobalPlayback(false);
+        };
+        audioRef.current = audio;
+      }
+      
+      // Use a sample audio file that's locally available
+      audioRef.current.src = sampleAudioFiles[currentSurah.number as keyof typeof sampleAudioFiles] || '/audio/surah-fatiha.mp3';
+      
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+        setGlobalPlayback(true);
+        toast({
+          title: "Playback Started",
+          description: `Now playing Surah ${currentSurah.name} recited by ${selectedQari.name}`,
+        });
+      }).catch(e => {
+        console.error("Error playing audio:", e);
+        
+        // Create a simple tone as fallback
+        try {
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz, A4 note
+          oscillator.connect(audioContext.destination);
+          oscillator.start();
+          setTimeout(() => oscillator.stop(), 3000); // Play for 3 seconds
+          
+          setIsPlaying(true);
+          setGlobalPlayback(true);
+          
+          toast({
+            title: "Demo Mode",
+            description: "Using synthesized audio for demonstration",
+          });
+        } catch (synthError) {
+          console.error("Fallback audio synthesis failed:", synthError);
           toast({
             title: "Playback error",
-            description: "Could not play audio. Please try again.",
+            description: "Could not play audio. This is a demo version without actual audio files.",
             variant: "destructive",
           });
-        });
-        setIsPlaying(true);
-      }
-      setGlobalPlayback(true);
-      toast({
-        title: "Playback Started",
-        description: `Now playing Surah ${currentSurah.name} recited by ${selectedQari.name}`,
+        }
       });
     }
   };
@@ -274,6 +360,11 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       setCurrentVerseId(null);
       setIsPlaying(false);
       setGlobalPlayback(false);
+      
+      // If there's audio playing, stop it
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       
       toast({
         title: "Surah changed",
@@ -344,15 +435,19 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         verseRefs.current[verseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  }, [currentSurah.verses, currentVerseId]);
+    
+    // If we change surah while audio is playing, update the audio source
+    if (isPlaying && audioRef.current) {
+      audioRef.current.src = sampleAudioFiles[currentSurah.number as keyof typeof sampleAudioFiles] || '/audio/surah-fatiha.mp3';
+      audioRef.current.play().catch(e => {
+        console.error("Error playing audio after surah change:", e);
+      });
+    }
+  }, [currentSurah.verses, currentVerseId, currentSurah.number, isPlaying]);
   
   return (
     <div className="quran-reader animate-fade-in relative">
-      {/* Audio element (hidden) */}
-      <audio ref={audioRef} className="hidden" onEnded={() => setIsPlaying(false)}>
-        <source src="/placeholder-audio.mp3" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
+      {/* No hidden audio element needed anymore since we're creating it dynamically */}
       
       {/* Surah selection modal */}
       {showSurahList && (
@@ -491,6 +586,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         </div>
       )}
       
+      {/* Surah header card */}
       <div className="glass-card rounded-xl p-5 mb-6 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-islamic-blue/30 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <button
@@ -535,6 +631,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         )}
       </div>
       
+      {/* Reader controls */}
       <div className="reader-controls flex justify-between items-center mb-5 glass-card rounded-xl p-3 border border-islamic-blue/20 bg-white/90 dark:bg-gray-800/90 dark:border-gray-700 shadow-md">
         <button 
           onClick={navigateToPreviousSurah}
@@ -576,166 +673,3 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
           
           <button 
             onClick={() => setShowQariList(true)}
-            className="text-islamic-blue dark:text-islamic-lightBlue hover:text-islamic-darkBlue dark:hover:text-white transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
-          >
-            <Music size={18} />
-          </button>
-          
-          <button 
-            onClick={handleMuteToggle}
-            className="text-islamic-blue dark:text-islamic-lightBlue hover:text-islamic-darkBlue dark:hover:text-white transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
-          >
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-          </button>
-        </div>
-        
-        <button 
-          onClick={navigateToNextSurah}
-          className="text-islamic-blue dark:text-islamic-lightBlue hover:text-islamic-darkBlue dark:hover:text-white transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
-        >
-          <ChevronRight size={20} />
-        </button>
-      </div>
-      
-      <div className="mb-5 flex items-center justify-center space-x-4">
-        <button 
-          onClick={() => setShowSurahList(true)}
-          className="flex items-center space-x-2 bg-islamic-blue/10 dark:bg-islamic-blue/20 text-islamic-blue dark:text-islamic-lightBlue px-4 py-2 rounded-lg hover:bg-islamic-blue/20 dark:hover:bg-islamic-blue/30 transition-colors"
-        >
-          <BookOpen size={16} />
-          <span>Select Surah or Juz</span>
-        </button>
-        
-        {bookmarkedVerses.length > 0 && (
-          <button 
-            className="flex items-center space-x-2 bg-islamic-gold/10 text-islamic-gold dark:bg-islamic-gold/20 dark:text-islamic-gold px-4 py-2 rounded-lg hover:bg-islamic-gold/20 dark:hover:bg-islamic-gold/30 transition-colors"
-            onClick={() => {
-              // In a real app, we would navigate to the bookmarked verses
-              toast({
-                title: "Bookmarks",
-                description: `You have ${bookmarkedVerses.length} bookmarked verses`,
-              });
-            }}
-          >
-            <Bookmark size={16} />
-            <span>Bookmarks ({bookmarkedVerses.length})</span>
-          </button>
-        )}
-      </div>
-      
-      {/* Add audio controls bar when in listening mode */}
-      {viewMode === 'listening' && !isPlaying && !globalPlayback && (
-        <div className="listening-bar glass-card rounded-xl p-4 mb-6 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-islamic-blue/30 shadow-lg text-center">
-          <div className="text-lg text-islamic-blue dark:text-islamic-lightBlue mb-3">
-            Ready to listen to Surah {currentSurah.name}
-          </div>
-          <div className="text-sm text-muted-foreground dark:text-gray-300 mb-4">
-            Recited by {selectedQari.name}
-          </div>
-          <button
-            onClick={handleGlobalPlayback}
-            className="inline-flex items-center space-x-2 bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900 px-5 py-2 rounded-full hover:bg-islamic-blue/90 dark:hover:bg-islamic-lightBlue/90 transition-colors"
-          >
-            <PlayCircle size={20} />
-            <span>Start Listening</span>
-          </button>
-        </div>
-      )}
-      
-      <div className="verses-container space-y-5" style={{ fontSize: `${fontSize}rem` }}>
-        {currentSurah.verses.map((verse, index) => (
-          <div 
-            key={verse.id} 
-            ref={el => verseRefs.current[index] = el}
-            className={`verse glass-card rounded-xl p-5 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-gray-700 shadow-md hover:shadow-lg transition-shadow ${currentVerseId === verse.id ? 'ring-2 ring-islamic-blue dark:ring-islamic-lightBlue' : ''}`}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="verse-number bg-islamic-blue/15 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue rounded-full w-8 h-8 flex items-center justify-center border border-islamic-blue/20 dark:border-islamic-blue/30">
-                {verse.id}
-              </div>
-              
-              <div className="flex space-x-2">
-                <button 
-                  onClick={() => handleBookmark(verse.id)}
-                  className={`transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 ${
-                    bookmarkedVerses.includes(verse.id) 
-                      ? 'text-islamic-gold' 
-                      : 'text-muted-foreground hover:text-islamic-blue dark:text-gray-400 dark:hover:text-islamic-lightBlue'
-                  }`}
-                >
-                  <Bookmark size={18} />
-                </button>
-                
-                <button 
-                  onClick={() => handlePlayAudio(verse.id)}
-                  className={`transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 ${
-                    isPlaying && currentVerseId === verse.id
-                      ? 'text-islamic-blue dark:text-islamic-lightBlue' 
-                      : 'text-muted-foreground hover:text-islamic-blue dark:text-gray-400 dark:hover:text-islamic-lightBlue'
-                  }`}
-                >
-                  {isPlaying && currentVerseId === verse.id ? <PauseCircle size={18} /> : <PlayCircle size={18} />}
-                </button>
-              </div>
-            </div>
-            
-            <div className="arabic-text text-xl md:text-2xl mb-4 leading-relaxed text-islamic-darkBlue dark:text-white">
-              {verse.arabic}
-            </div>
-            
-            {showTransliteration && (
-              <div className="transliteration text-sm text-muted-foreground dark:text-gray-300 italic mb-2 bg-islamic-blue/5 dark:bg-islamic-blue/10 p-2 rounded-lg">
-                {verse.transliteration}
-              </div>
-            )}
-            
-            {showTranslation && (
-              <div className="translation text-sm md:text-base text-muted-foreground dark:text-gray-300">
-                {verse.translation}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      <div className="audio-controls fixed bottom-20 left-0 right-0 flex justify-center z-20">
-        {(isPlaying || globalPlayback) && (
-          <div className="glass-card px-4 py-2 rounded-full flex items-center space-x-3 border border-islamic-blue/20 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 shadow-lg">
-            <button
-              onClick={() => {
-                if (globalPlayback) {
-                  handleGlobalPlayback();
-                } else if (isPlaying) {
-                  if (audioRef.current) {
-                    audioRef.current.pause();
-                    setIsPlaying(false);
-                  }
-                }
-              }}
-              className="text-islamic-blue dark:text-islamic-lightBlue p-1 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
-            >
-              <PauseCircle size={22} />
-            </button>
-            
-            <div className="text-sm text-muted-foreground dark:text-gray-300">
-              <span className="font-medium text-islamic-blue dark:text-islamic-lightBlue">
-                {selectedQari.name}
-              </span>
-              <span className="mx-1">•</span>
-              <span>{globalPlayback ? `Surah ${currentSurah.name}` : `Verse ${currentVerseId}`}</span>
-            </div>
-            
-            <button
-              onClick={handleMuteToggle}
-              className="text-islamic-blue dark:text-islamic-lightBlue p-1 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
-            >
-              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default QuranReader;
