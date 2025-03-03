@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
@@ -14,7 +13,7 @@ const Quran = () => {
       setViewMode('listening');
       toast({
         title: "Listening mode activated",
-        description: "You can now listen to Quran recitation",
+        description: "You can now listen to Quran recitation (demo with synthesized audio)",
       });
     } else {
       toast({
