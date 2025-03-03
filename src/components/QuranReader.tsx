@@ -165,7 +165,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [currentJuz, setCurrentJuz] = useState(1);
   const [globalPlayback, setGlobalPlayback] = useState(false);
   
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   // Add sample audio files for each surah
@@ -206,7 +206,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         description: "You can now read the Quran",
       });
     }
-  }, [viewMode]);
+  }, [viewMode, isPlaying]);
   
   const handleBookmark = (verseId: number) => {
     if (bookmarkedVerses.includes(verseId)) {
@@ -672,4 +672,4 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
           </button>
           
           <button 
-            onClick={() => setShowQariList(true)}
+            onClick={() => setShowQari
