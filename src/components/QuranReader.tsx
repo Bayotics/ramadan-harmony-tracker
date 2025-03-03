@@ -1,4 +1,4 @@
-<lov-code>
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -713,5 +713,120 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       {/* Reader controls */}
       <div className="reader-controls flex justify-between items-center mb-5 glass-card rounded-xl p-3 border border-islamic-blue/20 bg-white/90 dark:bg-gray-800/90 dark:border-gray-700 shadow-md">
         <button 
-          onClick={navigateToPreviousSurah}
-          className="text-islamic-blue dark:text-islamic-lightBlue hover:text-islamic-dark
+          onClick={() => setShowSurahList(true)}
+          className="text-islamic-blue dark:text-islamic-lightBlue hover:text-islamic-darkBlue dark:hover:text-white transition-colors p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20"
+        >
+          <BookOpen size={20} />
+        </button>
+        
+        <div className="flex space-x-2">
+          <button 
+            className={`text-xs px-3 py-1.5 rounded-full transition-colors ${showTranslation ? 'bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900' : 'bg-islamic-blue/10 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue'}`}
+            onClick={() => setShowTranslation(!showTranslation)}
+          >
+            Translation
+          </button>
+          
+          <button 
+            className={`text-xs px-3 py-1.5 rounded-full transition-colors ${showTransliteration ? 'bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900' : 'bg-islamic-blue/10 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue'}`}
+            onClick={() => setShowTransliteration(!showTransliteration)}
+          >
+            Transliteration
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button 
+            className="text-xs px-2 py-1 rounded-full bg-islamic-blue/10 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue hover:bg-islamic-blue/20 dark:hover:bg-islamic-blue/30 transition-colors"
+            onClick={() => setFontSize(Math.max(0.8, fontSize - 0.1))}
+          >
+            A-
+          </button>
+          
+          <button 
+            className="text-xs px-2 py-1 rounded-full bg-islamic-blue/10 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue hover:bg-islamic-blue/20 dark:hover:bg-islamic-blue/30 transition-colors"
+            onClick={() => setFontSize(Math.min(1.5, fontSize + 0.1))}
+          >
+            A+
+          </button>
+          
+          {viewMode === 'listening' && (
+            <button 
+              onClick={handleMuteToggle}
+              className="text-islamic-blue dark:text-islamic-lightBlue p-1.5 rounded-full hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 transition-colors"
+            >
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {/* Verses */}
+      <div className="verses space-y-6 px-1 py-2 mb-4">
+        {currentSurah.verses.map((verse, index) => (
+          <div 
+            key={verse.id}
+            ref={el => verseRefs.current[index] = el}
+            className={`verse-container glass-card rounded-lg p-4 backdrop-blur-sm ${
+              currentVerseId === verse.id && isPlaying
+                ? 'border-l-4 border-islamic-blue bg-islamic-blue/5 dark:border-islamic-lightBlue dark:bg-islamic-lightBlue/5'
+                : 'border border-islamic-blue/10 bg-white/70 dark:bg-gray-800/70 dark:border-gray-700'
+            }`}
+          >
+            <div className="flex justify-between items-start">
+              <div className="verse-number w-8 h-8 rounded-full bg-islamic-blue/10 dark:bg-islamic-blue/20 flex items-center justify-center text-sm font-medium text-islamic-blue dark:text-islamic-lightBlue">
+                {verse.id}
+              </div>
+              
+              <div className="flex gap-1">
+                {viewMode === 'listening' && (
+                  <button 
+                    onClick={() => handlePlayAudio(verse.id)}
+                    className={`p-1.5 rounded-full transition-colors ${
+                      isPlaying && currentVerseId === verse.id
+                        ? 'text-islamic-blue dark:text-islamic-lightBlue bg-islamic-blue/10 dark:bg-islamic-blue/20'
+                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {isPlaying && currentVerseId === verse.id ? <PauseCircle size={18} /> : <PlayCircle size={18} />}
+                  </button>
+                )}
+                
+                <button 
+                  onClick={() => handleBookmark(verse.id)}
+                  className={`p-1.5 rounded-full transition-colors ${
+                    bookmarkedVerses.includes(verse.id)
+                      ? 'text-islamic-blue dark:text-islamic-lightBlue bg-islamic-blue/10 dark:bg-islamic-blue/20'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Bookmark size={18} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="mt-3 space-y-2">
+              <div className="arabic-text text-right leading-loose" style={{ fontSize: `${1.5 * fontSize}rem` }}>
+                {verse.arabic}
+              </div>
+              
+              {showTransliteration && (
+                <div className="transliteration text-muted-foreground dark:text-gray-400 italic" style={{ fontSize: `${0.9 * fontSize}rem` }}>
+                  {verse.transliteration}
+                </div>
+              )}
+              
+              {showTranslation && (
+                <div className="translation dark:text-gray-300" style={{ fontSize: `${1 * fontSize}rem` }}>
+                  {verse.translation}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default QuranReader;
