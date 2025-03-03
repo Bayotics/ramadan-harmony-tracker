@@ -22,29 +22,54 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border shadow-lg z-10">
         <div className="container max-w-lg mx-auto">
-          <div className="flex justify-around items-center py-2">
-            <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
-              <Home size={24} className="mb-1" />
+          <div className="flex justify-around items-center py-3">
+            <Link 
+              to="/" 
+              className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+            >
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10' : ''}`}>
+                <Home size={22} />
+              </div>
               <span className="text-xs">Home</span>
             </Link>
             
-            <Link to="/quran" className={`nav-item ${isActive('/quran') ? 'active' : ''}`}>
-              <Book size={24} className="mb-1" />
+            <Link 
+              to="/quran" 
+              className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+            >
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10' : ''}`}>
+                <Book size={22} />
+              </div>
               <span className="text-xs">Quran</span>
             </Link>
             
-            <Link to="/qibla" className={`nav-item ${isActive('/qibla') ? 'active' : ''}`}>
-              <Compass size={24} className="mb-1" />
+            <Link 
+              to="/qibla" 
+              className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+            >
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10' : ''}`}>
+                <Compass size={22} />
+              </div>
               <span className="text-xs">Qibla</span>
             </Link>
             
-            <Link to="/duas" className={`nav-item ${isActive('/duas') ? 'active' : ''}`}>
-              <Moon size={24} className="mb-1" />
+            <Link 
+              to="/duas" 
+              className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+            >
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10' : ''}`}>
+                <Moon size={22} />
+              </div>
               <span className="text-xs">Duas</span>
             </Link>
             
-            <Link to="/settings" className={`nav-item ${isActive('/settings') ? 'active' : ''}`}>
-              <Settings size={24} className="mb-1" />
+            <Link 
+              to="/settings" 
+              className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue' : 'text-muted-foreground'}`}
+            >
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10' : ''}`}>
+                <Settings size={22} />
+              </div>
               <span className="text-xs">Settings</span>
             </Link>
           </div>
