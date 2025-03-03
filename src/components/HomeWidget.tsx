@@ -15,22 +15,22 @@ const HomeWidget: React.FC = () => {
   const { hours, minutes } = getTimeRemaining(countdownTime);
   
   return (
-    <div className="home-widget rounded-2xl overflow-hidden border border-islamic-blue/20">
-      <div className="widget-header bg-islamic-blue/10 p-3 text-center">
-        <h3 className="font-semibold">Ramadan Timekeeper</h3>
+    <div className="home-widget rounded-2xl overflow-hidden border border-islamic-blue/20 dark:border-islamic-blue/15">
+      <div className="widget-header bg-islamic-blue/10 dark:bg-islamic-blue/15 p-3 text-center">
+        <h3 className="font-semibold dark:text-white">Ramadan Timekeeper</h3>
       </div>
       
-      <div className="widget-content p-3">
+      <div className="widget-content p-3 dark:text-gray-200">
         <div className="next-prayer flex justify-between items-center mb-3">
-          <span className="text-sm">Next Prayer:</span>
-          <span className="font-medium text-islamic-blue">
+          <span className="text-sm dark:text-gray-300">Next Prayer:</span>
+          <span className="font-medium text-islamic-blue dark:text-islamic-lightBlue">
             {nextPrayer ? `${nextPrayer.name} (${nextPrayer.time})` : 'Loading...'}
           </span>
         </div>
         
         <div className="countdown flex justify-between items-center">
-          <span className="text-sm">{countdownLabel} in:</span>
-          <span className="font-medium text-islamic-blue">
+          <span className="text-sm dark:text-gray-300">{countdownLabel} in:</span>
+          <span className="font-medium text-islamic-blue dark:text-islamic-lightBlue">
             {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}
           </span>
         </div>

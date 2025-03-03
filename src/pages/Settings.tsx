@@ -1,17 +1,50 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import { Moon, Sun, Bell, Globe, Heart } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Settings = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [is24HourFormat, setIs24HourFormat] = useState(false);
+  
+  useEffect(() => {
+    const darkModeSetting = localStorage.getItem('darkMode') === 'true';
+    const hourFormatSetting = localStorage.getItem('24HourFormat') === 'true';
+    
+    setIsDarkMode(darkModeSetting);
+    setIs24HourFormat(hourFormatSetting);
+  }, []);
+  
+  const toggleDarkMode = () => {
+    const newDarkModeState = !isDarkMode;
+    setIsDarkMode(newDarkModeState);
+    
+    localStorage.setItem('darkMode', String(newDarkModeState));
+    
+    if (newDarkModeState) {
+      document.documentElement.classList.add('dark');
+      toast.success('Dark mode enabled');
+    } else {
+      document.documentElement.classList.remove('dark');
+      toast.success('Light mode enabled');
+    }
+  };
+  
+  const toggle24HourFormat = () => {
+    const newFormatState = !is24HourFormat;
+    setIs24HourFormat(newFormatState);
+    localStorage.setItem('24HourFormat', String(newFormatState));
+    toast.success(`${newFormatState ? '24-hour' : '12-hour'} format enabled`);
+  };
+  
   return (
     <Layout>
       <div className="page-container">
         <Header title="Settings" />
         
         <div className="settings-sections space-y-8">
-          <div className="setting-group glass-card rounded-xl p-5">
+          <div className="setting-group glass-card rounded-xl p-5 dark:bg-gray-800/90 dark:border-gray-700">
             <h3 className="flex items-center text-lg font-semibold mb-4">
               <Bell size={20} className="mr-2 text-islamic-blue" />
               Notifications
@@ -53,7 +86,7 @@ const Settings = () => {
             </div>
           </div>
           
-          <div className="setting-group glass-card rounded-xl p-5">
+          <div className="setting-group glass-card rounded-xl p-5 dark:bg-gray-800/90 dark:border-gray-700">
             <h3 className="flex items-center text-lg font-semibold mb-4">
               <Sun size={20} className="mr-2 text-islamic-blue" />
               Display
@@ -63,10 +96,15 @@ const Settings = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Dark Mode</p>
-                  <p className="text-sm text-muted-foreground">Switch between light and dark theme</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Switch between light and dark theme</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={isDarkMode}
+                    onChange={toggleDarkMode}
+                  />
                   <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-blue"></div>
                 </label>
               </div>
@@ -74,17 +112,22 @@ const Settings = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">24-Hour Format</p>
-                  <p className="text-sm text-muted-foreground">Display times in 24-hour format</p>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Display times in 24-hour format</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={is24HourFormat}
+                    onChange={toggle24HourFormat}
+                  />
                   <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-blue"></div>
                 </label>
               </div>
             </div>
           </div>
           
-          <div className="setting-group glass-card rounded-xl p-5">
+          <div className="setting-group glass-card rounded-xl p-5 dark:bg-gray-800/90 dark:border-gray-700">
             <h3 className="flex items-center text-lg font-semibold mb-4">
               <Globe size={20} className="mr-2 text-islamic-blue" />
               Language
@@ -93,7 +136,7 @@ const Settings = () => {
             <div className="space-y-4">
               <div>
                 <p className="font-medium mb-2">Select Language</p>
-                <select className="w-full p-2 rounded-lg border border-border bg-background">
+                <select className="w-full p-2 rounded-lg border border-border dark:border-gray-700 bg-background dark:bg-gray-700">
                   <option value="en">English</option>
                   <option value="ar">العربية (Arabic)</option>
                   <option value="fr">Français (French)</option>
@@ -104,28 +147,33 @@ const Settings = () => {
             </div>
           </div>
           
-          <div className="setting-group glass-card rounded-xl p-5">
+          <div className="setting-group glass-card rounded-xl p-5 dark:bg-gray-800/90 dark:border-gray-700">
             <h3 className="flex items-center text-lg font-semibold mb-4">
               <Heart size={20} className="mr-2 text-islamic-blue" />
               Support the App
             </h3>
             
             <div className="space-y-4">
-              <p className="text-sm">
+              <p className="text-sm dark:text-gray-300">
                 If you find this app helpful and would like to support its development, please consider making a donation.
               </p>
               
-              <button className="w-full bg-islamic-blue text-white py-2 px-4 rounded-lg hover:bg-islamic-blue/90 transition-colors">
+              <a 
+                href="https://www.paypal.com/donate/?business=CB2Y4PCSEG3WU&no_recurring=0&currency_code=USD"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-islamic-blue text-white py-2 px-4 rounded-lg hover:bg-islamic-blue/90 transition-colors text-center"
+              >
                 Donate via PayPal
-              </button>
+              </a>
             </div>
           </div>
           
           <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground dark:text-gray-400">
               Ramadan Timekeeper v1.0
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
               Made with love for the Ummah by Tahirah Shobaloju
             </p>
           </div>

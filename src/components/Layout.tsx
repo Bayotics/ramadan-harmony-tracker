@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Book, Compass, Moon, Settings } from 'lucide-react';
 
@@ -10,17 +10,27 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   
+  // Check for dark mode preference in localStorage on component mount
+  useEffect(() => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+  
   const isActive = (path: string) => {
     return location.pathname === path;
   };
   
   return (
-    <div className="min-h-full flex flex-col bg-pattern">
+    <div className="min-h-full flex flex-col bg-pattern dark:bg-gray-900">
       <main className="flex-1 pb-20">
         {children}
       </main>
       
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border shadow-lg z-10">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/80 dark:bg-gray-800/90 backdrop-blur-lg border-t border-border dark:border-gray-700 shadow-lg z-10">
         <div className="container max-w-lg mx-auto">
           <div className="flex justify-around items-center py-3">
             <Link 
