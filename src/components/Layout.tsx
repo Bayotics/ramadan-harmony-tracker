@@ -35,9 +35,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-around items-center py-3">
             <Link 
               to="/" 
-              className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
             >
-              <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10' : ''}`}>
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                 <Home size={22} />
               </div>
               <span className="text-xs">Home</span>
@@ -45,9 +45,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/quran" 
-              className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
             >
-              <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10' : ''}`}>
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                 <Book size={22} />
               </div>
               <span className="text-xs">Quran</span>
@@ -55,9 +55,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/qibla" 
-              className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
             >
-              <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10' : ''}`}>
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                 <Compass size={22} />
               </div>
               <span className="text-xs">Qibla</span>
@@ -65,9 +65,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/duas" 
-              className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
             >
-              <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10' : ''}`}>
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                 <Moon size={22} />
               </div>
               <span className="text-xs">Duas</span>
@@ -75,9 +75,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <Link 
               to="/settings" 
-              className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue' : 'text-foreground dark:text-gray-300'}`}
+              className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
             >
-              <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10' : ''}`}>
+              <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                 <Settings size={22} />
               </div>
               <span className="text-xs">Settings</span>
