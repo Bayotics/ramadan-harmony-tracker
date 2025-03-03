@@ -65,22 +65,25 @@ const QiblaFinder: React.FC = () => {
         <>
           <div className="compass-container relative w-64 h-64 mb-6">
             {/* Compass background */}
-            <div className="absolute inset-0 rounded-full border-4 border-islamic-blue/20 bg-white/80 shadow-lg">
+            <div className="absolute inset-0 rounded-full border-4 border-islamic-blue/20 bg-gradient-to-br from-white to-islamic-cream/50 shadow-lg backdrop-blur-sm">
               {/* Cardinal directions */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 font-semibold text-lg">N</div>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 font-semibold text-lg">E</div>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-semibold text-lg">S</div>
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 font-semibold text-lg">W</div>
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue">N</div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue">E</div>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue">S</div>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue">W</div>
               
-              {/* Degrees markings */}
-              {Array.from({ length: 12 }).map((_, i) => (
+              {/* Inner circle */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border-2 border-islamic-blue/30 bg-white/40"></div>
+              
+              {/* Degree markings */}
+              {Array.from({ length: 24 }).map((_, i) => (
                 <div 
                   key={i} 
-                  className="absolute w-0.5 h-3 bg-islamic-blue/50"
+                  className={`absolute w-0.5 h-3 ${i % 3 === 0 ? 'h-5 bg-islamic-blue/70' : 'bg-islamic-blue/40'}`}
                   style={{
-                    top: '4px',
+                    top: '8px',
                     left: '50%',
-                    transform: `translateX(-50%) rotate(${i * 30}deg)`,
+                    transform: `translateX(-50%) rotate(${i * 15}deg)`,
                     transformOrigin: 'bottom center',
                   }}
                 ></div>
@@ -89,29 +92,38 @@ const QiblaFinder: React.FC = () => {
             
             {/* Compass needle */}
             <div 
-              className="absolute top-1/2 left-1/2 w-1 h-40 -ml-0.5 -mt-20 transition-transform duration-300 ease-out"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 ease-out"
               style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
             >
-              <div className="w-full h-1/2 bg-islamic-blue"></div>
-              <div className="w-full h-1/2 bg-islamic-gold"></div>
-              
-              {/* Kaaba indicator */}
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                <div className="w-6 h-6 bg-islamic-blue rounded-full flex items-center justify-center shadow-lg glow">
-                  <div className="w-4 h-4 bg-white rounded-full"></div>
+              {/* Needle design */}
+              <div className="relative h-52 w-4 flex flex-col items-center">
+                <div className="w-1.5 h-[5.5rem] bg-gradient-to-t from-islamic-blue to-islamic-lightBlue rounded-t-full shadow-md"></div>
+                <div className="w-1.5 h-[5.5rem] bg-gradient-to-b from-islamic-gold to-islamic-sand rounded-b-full shadow-md"></div>
+                
+                {/* Kaaba indicator */}
+                <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-islamic-darkBlue to-islamic-blue rounded-full flex items-center justify-center shadow-lg glow">
+                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-islamic-gold rounded-full animate-pulse-gentle"></div>
+                    </div>
+                  </div>
+                  <div className="mt-1 text-xs font-semibold text-islamic-darkBlue">Kaaba</div>
                 </div>
+                
+                {/* Center pivot */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white border-2 border-islamic-blue/50 shadow-inner"></div>
               </div>
             </div>
           </div>
           
           {qiblaAngle !== null && (
-            <div className="qibla-info text-center">
-              <p className="text-lg font-semibold mb-1">
+            <div className="qibla-info glass-card rounded-xl px-6 py-4 text-center">
+              <p className="text-lg font-semibold mb-1 text-islamic-darkBlue">
                 Qibla Direction: {Math.round(qiblaAngle)}°
               </p>
               {userLocation && (
                 <p className="flex items-center justify-center text-sm text-muted-foreground">
-                  <MapPin size={14} className="mr-1" />
+                  <MapPin size={14} className="mr-1 text-islamic-blue" />
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
               )}
