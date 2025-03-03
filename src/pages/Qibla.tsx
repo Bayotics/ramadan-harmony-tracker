@@ -36,16 +36,16 @@ const Qibla = () => {
             <div>
               <h3 className="font-semibold mb-3 text-islamic-darkBlue">How to use the Qibla Finder</h3>
               <ol className="list-decimal pl-5 space-y-3 text-sm">
-                <li className="text-muted-foreground">Hold your device flat with the screen facing up, away from electronic devices or metal objects</li>
-                <li className="text-muted-foreground">Allow the compass to calibrate by moving your device in a figure-8 pattern</li>
-                <li className="text-muted-foreground">When ready, the blue needle will point towards the Qibla direction</li>
-                <li className="text-muted-foreground">For best results, use in an open area away from interference</li>
+                <li className="text-gray-700 dark:text-gray-300">Hold your device flat with the screen facing up, away from electronic devices or metal objects</li>
+                <li className="text-gray-700 dark:text-gray-300">Allow the compass to calibrate by moving your device in a figure-8 pattern</li>
+                <li className="text-gray-700 dark:text-gray-300">When ready, the blue needle will point towards the Qibla direction</li>
+                <li className="text-gray-700 dark:text-gray-300">For best results, use in an open area away from interference</li>
               </ol>
             </div>
           </div>
 
           <div className="mt-5 p-4 rounded-lg text-center border border-islamic-blue/10 bg-gradient-to-r from-islamic-blue/5 to-islamic-cream/40">
-            <p className="text-sm text-islamic-darkBlue">
+            <p className="text-sm text-islamic-darkBlue font-medium">
               The Qibla is the direction Muslims face during prayer, toward the Kaaba in Mecca, Saudi Arabia
             </p>
           </div>

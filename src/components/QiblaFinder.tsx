@@ -59,7 +59,7 @@ const QiblaFinder: React.FC = () => {
             <Compass size={60} strokeWidth={1.5} />
           </div>
           <p className="text-lg font-medium bg-gradient-to-r from-islamic-blue to-islamic-darkBlue bg-clip-text text-transparent">Calibrating compass...</p>
-          <p className="text-sm text-muted-foreground">Please hold your device level</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Please hold your device level</p>
         </div>
       ) : (
         <>
@@ -150,7 +150,7 @@ const QiblaFinder: React.FC = () => {
                 Qibla Direction: {Math.round(qiblaAngle)}°
               </p>
               {userLocation && (
-                <p className="flex items-center justify-center text-sm text-muted-foreground">
+                <p className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
                   <MapPin size={14} className="mr-1 text-islamic-blue" />
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
