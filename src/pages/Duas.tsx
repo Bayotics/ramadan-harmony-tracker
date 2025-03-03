@@ -40,7 +40,7 @@ const Duas = () => {
         
         <div className="search-box glass-card rounded-xl p-4 mb-6 border border-islamic-blue/20 bg-white/90 dark:bg-gray-800/90 dark:border-gray-700/30 shadow-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground dark:text-gray-400" size={18} />
             <input 
               type="text" 
               placeholder="Search duas..." 
@@ -65,7 +65,7 @@ const Duas = () => {
                 className={`transition-colors border px-3 py-2 rounded-lg text-sm
                   ${selectedCategory === category 
                     ? 'bg-islamic-blue text-white dark:bg-islamic-blue dark:text-white border-islamic-blue' 
-                    : 'bg-islamic-blue/10 hover:bg-islamic-blue/20 text-islamic-blue dark:text-islamic-lightBlue border-islamic-blue/10 dark:border-islamic-blue/30'
+                    : 'bg-islamic-blue/10 hover:bg-islamic-blue/20 text-islamic-blue dark:text-islamic-lightBlue border-islamic-blue/10 dark:border-islamic-blue/30 dark:hover:bg-islamic-blue/30'
                   }`}
               >
                 {category}
