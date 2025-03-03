@@ -54,7 +54,7 @@ const Quran = () => {
         
         <div className="quran-features flex flex-wrap justify-center gap-4 mb-8">
           <div className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2">
-            <Search size={16} className="text-islamic-blue dark:text-islamic-lightBlue" />
+            <BookOpen size={16} className="text-islamic-blue dark:text-islamic-lightBlue" />
             <span className="text-sm text-muted-foreground dark:text-gray-300">Surah & Juz Navigation</span>
           </div>
           

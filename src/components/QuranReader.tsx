@@ -86,27 +86,11 @@ const QuranReader: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentVerseId, setCurrentVerseId] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredSurahs, setFilteredSurahs] = useState(mockSurahList);
+  const [currentSurahIndex, setCurrentSurahIndex] = useState(0);
+  const [currentJuz, setCurrentJuz] = useState(1);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
-  // Filter surahs based on search query
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredSurahs(mockSurahList);
-      return;
-    }
-    
-    const filtered = mockSurahList.filter(surah => 
-      surah.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      surah.arabicName.includes(searchQuery) ||
-      surah.number.toString().includes(searchQuery)
-    );
-    
-    setFilteredSurahs(filtered);
-  }, [searchQuery]);
   
   const handleBookmark = (verseId: number) => {
     if (bookmarkedVerses.includes(verseId)) {
@@ -184,17 +168,31 @@ const QuranReader: React.FC = () => {
   };
   
   const navigateToNextSurah = () => {
-    const currentIndex = mockSurahList.findIndex(surah => surah.number === currentSurah.number);
-    if (currentIndex < mockSurahList.length - 1) {
-      selectSurah(mockSurahList[currentIndex + 1]);
-    }
+    const newIndex = currentSurahIndex < mockSurahList.length - 1 ? currentSurahIndex + 1 : 0;
+    setCurrentSurahIndex(newIndex);
+    selectSurah(mockSurahList[newIndex]);
   };
   
   const navigateToPreviousSurah = () => {
-    const currentIndex = mockSurahList.findIndex(surah => surah.number === currentSurah.number);
-    if (currentIndex > 0) {
-      selectSurah(mockSurahList[currentIndex - 1]);
-    }
+    const newIndex = currentSurahIndex > 0 ? currentSurahIndex - 1 : mockSurahList.length - 1;
+    setCurrentSurahIndex(newIndex);
+    selectSurah(mockSurahList[newIndex]);
+  };
+  
+  const navigateToNextJuz = () => {
+    setCurrentJuz(prev => prev < 30 ? prev + 1 : 1);
+    toast({
+      title: "Juz changed",
+      description: `Now viewing Juz ${currentJuz < 30 ? currentJuz + 1 : 1}`,
+    });
+  };
+  
+  const navigateToPreviousJuz = () => {
+    setCurrentJuz(prev => prev > 1 ? prev - 1 : 30);
+    toast({
+      title: "Juz changed",
+      description: `Now viewing Juz ${currentJuz > 1 ? currentJuz - 1 : 30}`,
+    });
   };
   
   useEffect(() => {
@@ -222,49 +220,83 @@ const QuranReader: React.FC = () => {
       {showSurahList && (
         <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full max-h-[70vh] overflow-y-auto shadow-xl">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-lg font-semibold dark:text-white">Select Surah</h3>
-                <button 
-                  onClick={() => setShowSurahList(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="Search surah..." 
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-islamic-blue/30 bg-transparent dark:text-white"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-semibold dark:text-white">Select Surah</h3>
+              <button 
+                onClick={() => setShowSurahList(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
+              >
+                ✕
+              </button>
             </div>
             
-            <ul className="p-2">
-              {filteredSurahs.map((surah) => (
-                <li key={surah.number}>
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-6">
+                <button 
+                  onClick={navigateToPreviousSurah}
+                  className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                
+                <div className="text-center">
+                  <div className="text-xl font-semibold text-islamic-blue dark:text-islamic-lightBlue mb-1">
+                    {mockSurahList[currentSurahIndex].name}
+                  </div>
+                  <div className="text-sm text-muted-foreground dark:text-gray-400">
+                    Surah {mockSurahList[currentSurahIndex].number} • {mockSurahList[currentSurahIndex].verses} verses
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={navigateToNextSurah}
+                  className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+              
+              <div className="text-center mb-4">
+                <div className="arabic-text text-2xl mb-2 text-islamic-darkBlue dark:text-white">
+                  {mockSurahList[currentSurahIndex].arabicName}
+                </div>
+              </div>
+              
+              <div className="flex justify-center mb-4">
+                <button
+                  onClick={() => selectSurah(mockSurahList[currentSurahIndex])}
+                  className="bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900 px-5 py-2 rounded-lg hover:bg-islamic-blue/90 dark:hover:bg-islamic-lightBlue/90 transition-colors"
+                >
+                  Select this Surah
+                </button>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="text-center text-sm font-medium text-muted-foreground dark:text-gray-400 mb-4">Navigate by Juz</h4>
+                
+                <div className="flex items-center justify-between">
                   <button 
-                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center transition-colors"
-                    onClick={() => selectSurah(surah)}
+                    onClick={navigateToPreviousJuz}
+                    className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="bg-islamic-blue/10 text-islamic-blue dark:bg-islamic-blue/20 dark:text-islamic-lightBlue w-8 h-8 rounded-full flex items-center justify-center text-sm">
-                        {surah.number}
-                      </span>
-                      <div>
-                        <div className="font-medium dark:text-white">{surah.name}</div>
-                        <div className="text-xs text-muted-foreground dark:text-gray-400">{surah.verses} verses</div>
-                      </div>
-                    </div>
-                    <div className="arabic-text text-islamic-blue dark:text-islamic-lightBlue">{surah.arabicName}</div>
+                    <ChevronLeft size={20} />
                   </button>
-                </li>
-              ))}
-            </ul>
+                  
+                  <div className="text-center">
+                    <div className="text-lg font-medium text-islamic-blue dark:text-islamic-lightBlue">
+                      Juz {currentJuz}
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={navigateToNextJuz}
+                    className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -322,18 +354,25 @@ const QuranReader: React.FC = () => {
       )}
       
       <div className="glass-card rounded-xl p-5 mb-6 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-islamic-blue/30 shadow-lg">
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search surah or verse..." 
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-islamic-blue/20 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-islamic-blue/30 bg-transparent dark:text-white"
-          />
-        </div>
-      
-        <div className="surah-header text-center mb-6">
-          <h2 className="text-2xl font-bold mb-1 text-islamic-darkBlue dark:text-white">{currentSurah.name}</h2>
-          <div className="arabic-text text-xl text-islamic-blue dark:text-islamic-lightBlue">{currentSurah.arabicName}</div>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={navigateToPreviousSurah}
+            className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          
+          <div className="text-center flex-1">
+            <h2 className="text-2xl font-bold mb-1 text-islamic-darkBlue dark:text-white">{currentSurah.name}</h2>
+            <div className="arabic-text text-xl text-islamic-blue dark:text-islamic-lightBlue">{currentSurah.arabicName}</div>
+          </div>
+          
+          <button
+            onClick={navigateToNextSurah}
+            className="text-islamic-blue dark:text-islamic-lightBlue hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 p-2 rounded-full transition-colors"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       </div>
       
@@ -405,7 +444,7 @@ const QuranReader: React.FC = () => {
           className="flex items-center space-x-2 bg-islamic-blue/10 dark:bg-islamic-blue/20 text-islamic-blue dark:text-islamic-lightBlue px-4 py-2 rounded-lg hover:bg-islamic-blue/20 dark:hover:bg-islamic-blue/30 transition-colors"
         >
           <BookOpen size={16} />
-          <span>Surah List</span>
+          <span>Select Surah or Juz</span>
         </button>
         
         {bookmarkedVerses.length > 0 && (
@@ -520,3 +559,4 @@ const QuranReader: React.FC = () => {
 };
 
 export default QuranReader;
+
