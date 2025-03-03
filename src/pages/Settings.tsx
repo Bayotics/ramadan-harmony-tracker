@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
@@ -155,7 +156,7 @@ const Settings = () => {
             
             <div className="space-y-4">
               <p className="text-sm dark:text-gray-300">
-                If you find this app helpful and would like to support its development, please consider making a donation.
+                If you find this app helpful and would like to support its development, please consider making a donation. Your donation helps provide meals for those fasting and improves this app for the global Muslim community. Join us in spreading kindness and making prayer times more accessible.
               </p>
               
               <a 
