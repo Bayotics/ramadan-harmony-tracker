@@ -4,9 +4,17 @@ import Layout from '../components/Layout';
 import Header from '../components/Header';
 import QuranReader from '../components/QuranReader';
 import { Book, BookOpen, Search, Bookmark, PlayCircle } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 const Quran = () => {
   const [viewMode, setViewMode] = useState<'reading' | 'listening'>('reading');
+  
+  const handleFeatureClick = (feature: string) => {
+    toast({
+      title: feature,
+      description: `${feature} feature selected`,
+    });
+  };
   
   return (
     <Layout>
@@ -53,24 +61,33 @@ const Quran = () => {
         </div>
         
         <div className="quran-features flex flex-wrap justify-center gap-4 mb-8">
-          <div className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2">
+          <button 
+            onClick={() => handleFeatureClick('Surah & Juz Navigation')}
+            className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2 hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 transition-colors cursor-pointer"
+          >
             <BookOpen size={16} className="text-islamic-blue dark:text-islamic-lightBlue" />
             <span className="text-sm text-muted-foreground dark:text-gray-300">Surah & Juz Navigation</span>
-          </div>
+          </button>
           
-          <div className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2">
+          <button 
+            onClick={() => handleFeatureClick('Audio Recitation')}
+            className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2 hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 transition-colors cursor-pointer"
+          >
             <PlayCircle size={16} className="text-islamic-blue dark:text-islamic-lightBlue" />
             <span className="text-sm text-muted-foreground dark:text-gray-300">Audio Recitation</span>
-          </div>
+          </button>
           
-          <div className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2">
+          <button 
+            onClick={() => handleFeatureClick('Bookmark Verses')}
+            className="feature-card p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-islamic-blue/10 dark:border-gray-700 flex items-center gap-2 hover:bg-islamic-blue/10 dark:hover:bg-islamic-blue/20 transition-colors cursor-pointer"
+          >
             <Bookmark size={16} className="text-islamic-blue dark:text-islamic-lightBlue" />
             <span className="text-sm text-muted-foreground dark:text-gray-300">Bookmark Verses</span>
-          </div>
+          </button>
         </div>
         
         <div className="relative">
-          <QuranReader />
+          <QuranReader viewMode={viewMode} />
           <div className="absolute top-0 w-full h-full pointer-events-none opacity-10 bg-pattern z-0"></div>
         </div>
       </div>

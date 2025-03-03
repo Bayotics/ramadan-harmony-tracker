@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -74,7 +73,11 @@ const mockQariList = [
   { id: 5, name: "Abu Bakr Al-Shatri", style: "Murattal" },
 ];
 
-const QuranReader: React.FC = () => {
+interface QuranReaderProps {
+  viewMode: 'reading' | 'listening';
+}
+
+const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [showTranslation, setShowTranslation] = useState(true);
   const [showTransliteration, setShowTransliteration] = useState(true);
   const [fontSize, setFontSize] = useState(1);
@@ -91,6 +94,31 @@ const QuranReader: React.FC = () => {
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  useEffect(() => {
+    if (viewMode === 'listening') {
+      toast({
+        title: "Listening Mode Activated",
+        description: "You can now listen to Quran recitation",
+      });
+      
+      // Auto-play the first verse when switching to listening mode
+      if (currentSurah.verses.length > 0 && !isPlaying) {
+        handlePlayAudio(currentSurah.verses[0].id);
+      }
+    } else {
+      // If we're switching away from listening mode, pause any playing audio
+      if (isPlaying && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      
+      toast({
+        title: "Reading Mode Activated",
+        description: "You can now read the Quran",
+      });
+    }
+  }, [viewMode]);
   
   const handleBookmark = (verseId: number) => {
     if (bookmarkedVerses.includes(verseId)) {
@@ -559,4 +587,3 @@ const QuranReader: React.FC = () => {
 };
 
 export default QuranReader;
-
