@@ -1,56 +1,129 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
-// Mock surah data for demo
-const mockSurah = {
-  name: "Al-Fatiha",
-  arabicName: "الفاتحة",
-  number: 1,
-  verses: [
-    {
-      id: 1,
-      arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-      translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
-      transliteration: "Bismillahir rahmanir raheem"
-    },
-    {
-      id: 2,
-      arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-      translation: "All praise is due to Allah, Lord of the worlds.",
-      transliteration: "Alhamdu lillahi rabbil 'alamin"
-    },
-    {
-      id: 3,
-      arabic: "الرَّحْمَٰنِ الرَّحِيمِ",
-      translation: "The Entirely Merciful, the Especially Merciful.",
-      transliteration: "Ar-rahmanir-raheem"
-    },
-    {
-      id: 4,
-      arabic: "مَالِكِ يَوْمِ الدِّينِ",
-      translation: "Sovereign of the Day of Recompense.",
-      transliteration: "Maliki yawmid-deen"
-    },
-    {
-      id: 5,
-      arabic: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
-      translation: "It is You we worship and You we ask for help.",
-      transliteration: "Iyyaka na'budu wa iyyaka nasta'een"
-    },
-    {
-      id: 6,
-      arabic: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
-      translation: "Guide us to the straight path.",
-      transliteration: "Ihdinas-siratal-mustaqeem"
-    },
-    {
-      id: 7,
-      arabic: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
-      translation: "The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.",
-      transliteration: "Siratal-latheena an'amta 'alayhim, ghayril-maghdubi 'alayhim wa lad-daalleen"
-    }
-  ]
+// Mock surah data for different surahs
+const surahsData = {
+  1: {
+    name: "Al-Fatiha",
+    arabicName: "الفاتحة",
+    number: 1,
+    verses: [
+      {
+        id: 1,
+        arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
+        transliteration: "Bismillahir rahmanir raheem"
+      },
+      {
+        id: 2,
+        arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+        translation: "All praise is due to Allah, Lord of the worlds.",
+        transliteration: "Alhamdu lillahi rabbil 'alamin"
+      },
+      {
+        id: 3,
+        arabic: "الرَّحْمَٰنِ الرَّحِيمِ",
+        translation: "The Entirely Merciful, the Especially Merciful.",
+        transliteration: "Ar-rahmanir-raheem"
+      },
+      {
+        id: 4,
+        arabic: "مَالِكِ يَوْمِ الدِّينِ",
+        translation: "Sovereign of the Day of Recompense.",
+        transliteration: "Maliki yawmid-deen"
+      },
+      {
+        id: 5,
+        arabic: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
+        translation: "It is You we worship and You we ask for help.",
+        transliteration: "Iyyaka na'budu wa iyyaka nasta'een"
+      },
+      {
+        id: 6,
+        arabic: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
+        translation: "Guide us to the straight path.",
+        transliteration: "Ihdinas-siratal-mustaqeem"
+      },
+      {
+        id: 7,
+        arabic: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
+        translation: "The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.",
+        transliteration: "Siratal-latheena an'amta 'alayhim, ghayril-maghdubi 'alayhim wa lad-daalleen"
+      }
+    ]
+  },
+  2: {
+    name: "Al-Baqara",
+    arabicName: "البقرة",
+    number: 2,
+    verses: [
+      {
+        id: 1,
+        arabic: "الم",
+        translation: "Alif, Lam, Meem.",
+        transliteration: "Alif Lam Meem"
+      },
+      {
+        id: 2,
+        arabic: "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ",
+        translation: "This is the Book about which there is no doubt, a guidance for those conscious of Allah.",
+        transliteration: "Thalika alkitabu la rayba feehi hudan lilmuttaqeen"
+      },
+      {
+        id: 3,
+        arabic: "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ",
+        translation: "Who believe in the unseen, establish prayer, and spend out of what We have provided for them.",
+        transliteration: "Allatheena yu/minoona bialghaybi wayuqeemoona alssalata wamimma razaqnahum yunfiqoon"
+      }
+    ]
+  },
+  3: {
+    name: "Ali 'Imran",
+    arabicName: "آل عمران",
+    number: 3,
+    verses: [
+      {
+        id: 1,
+        arabic: "الم",
+        translation: "Alif, Lam, Meem.",
+        transliteration: "Alif Lam Meem"
+      },
+      {
+        id: 2,
+        arabic: "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ",
+        translation: "Allah - there is no deity except Him, the Ever-Living, the Sustainer of existence.",
+        transliteration: "Allahu la ilaha illa huwa alhayyu alqayyoom"
+      }
+    ]
+  },
+  4: {
+    name: "An-Nisa",
+    arabicName: "النساء",
+    number: 4,
+    verses: [
+      {
+        id: 1,
+        arabic: "يَا أَيُّهَا النَّاسُ اتَّقُوا رَبَّكُمُ الَّذِي خَلَقَكُم مِّن نَّفْسٍ وَاحِدَةٍ وَخَلَقَ مِنْهَا زَوْجَهَا وَبَثَّ مِنْهُمَا رِجَالًا كَثِيرًا وَنِسَاءً ۚ وَاتَّقُوا اللَّهَ الَّذِي تَسَاءَلُونَ بِهِ وَالْأَرْحَامَ ۚ إِنَّ اللَّهَ كَانَ عَلَيْكُمْ رَقِيبًا",
+        translation: "O mankind, fear your Lord, who created you from one soul and created from it its mate and dispersed from both of them many men and women. And fear Allah, through whom you ask one another, and the wombs. Indeed Allah is ever, over you, an Observer.",
+        transliteration: "Ya ayyuha alnnasu ittaqoo rabbakumu allathee khalaqakum min nafsin wahidatin wakhalaqa minha zawjaha wabaththa minhuma rijalan katheeran wanisaan waittaqoo Allaha allathee tasaaloona bihi waalarhama inna Allaha kana AAalaykum raqeeban"
+      }
+    ]
+  },
+  5: {
+    name: "Al-Ma'idah",
+    arabicName: "المائدة",
+    number: 5,
+    verses: [
+      {
+        id: 1,
+        arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ غَيْرَ مُحِلِّي الصَّيْدِ وَأَنتُمْ حُرُمٌ ۗ إِنَّ اللَّهَ يَحْكُمُ مَا يُرِيدُ",
+        translation: "O you who have believed, fulfill [all] contracts. Lawful for you are the animals of grazing livestock except for that which is recited to you [in this Qur'an] - hunting not being permitted while you are in the state of ihram. Indeed, Allah ordains what He intends.",
+        transliteration: "Ya ayyuha allatheena amanoo awfoo bialAAuqoodi ohillat lakum baheematu alanAAami illa ma yutla AAalaykum ghayra muhillee alssaydi waantum hurumun inna Allaha yahkumu ma yureed"
+      }
+    ]
+  }
 };
 
 // Mock list of surahs for navigation
@@ -81,7 +154,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [showTranslation, setShowTranslation] = useState(true);
   const [showTransliteration, setShowTransliteration] = useState(true);
   const [fontSize, setFontSize] = useState(1);
-  const [currentSurah, setCurrentSurah] = useState(mockSurah);
+  const [currentSurah, setCurrentSurah] = useState(surahsData[1]);
   const [showSurahList, setShowSurahList] = useState(false);
   const [showQariList, setShowQariList] = useState(false);
   const [selectedQari, setSelectedQari] = useState(mockQariList[0]);
@@ -91,6 +164,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [currentVerseId, setCurrentVerseId] = useState<number | null>(null);
   const [currentSurahIndex, setCurrentSurahIndex] = useState(0);
   const [currentJuz, setCurrentJuz] = useState(1);
+  const [globalPlayback, setGlobalPlayback] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -101,11 +175,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         title: "Listening Mode Activated",
         description: "You can now listen to Quran recitation",
       });
-      
-      // Auto-play the first verse when switching to listening mode
-      if (currentSurah.verses.length > 0 && !isPlaying) {
-        handlePlayAudio(currentSurah.verses[0].id);
-      }
     } else {
       // If we're switching away from listening mode, pause any playing audio
       if (isPlaying && audioRef.current) {
@@ -160,22 +229,63 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     }
   };
   
+  const handleGlobalPlayback = () => {
+    if (globalPlayback) {
+      // Stop playback
+      if (audioRef.current && isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+      setGlobalPlayback(false);
+      toast({
+        title: "Playback Paused",
+        description: "Quran recitation paused",
+      });
+    } else {
+      // Start playback from the first verse or current verse
+      const firstVerseId = currentSurah.verses[0].id;
+      setCurrentVerseId(firstVerseId);
+      if (audioRef.current) {
+        audioRef.current.play().catch(e => {
+          console.error("Error playing audio:", e);
+          toast({
+            title: "Playback error",
+            description: "Could not play audio. Please try again.",
+            variant: "destructive",
+          });
+        });
+        setIsPlaying(true);
+      }
+      setGlobalPlayback(true);
+      toast({
+        title: "Playback Started",
+        description: `Now playing Surah ${currentSurah.name} recited by ${selectedQari.name}`,
+      });
+    }
+  };
+  
   const selectSurah = (surah: typeof mockSurahList[0]) => {
-    // In a real app, we would fetch the surah data from an API
-    setCurrentSurah({
-      ...mockSurah,
-      name: surah.name,
-      arabicName: surah.arabicName,
-      number: surah.number
-    });
-    setShowSurahList(false);
-    setCurrentVerseId(null);
-    setIsPlaying(false);
+    // Get the actual surah data from our mock data
+    const surahData = surahsData[surah.number as keyof typeof surahsData];
     
-    toast({
-      title: "Surah changed",
-      description: `Now viewing ${surah.name}`,
-    });
+    if (surahData) {
+      setCurrentSurah(surahData);
+      setShowSurahList(false);
+      setCurrentVerseId(null);
+      setIsPlaying(false);
+      setGlobalPlayback(false);
+      
+      toast({
+        title: "Surah changed",
+        description: `Now viewing ${surah.name}`,
+      });
+    } else {
+      toast({
+        title: "Surah not available",
+        description: `Surah ${surah.name} is not available in the demo`,
+        variant: "destructive",
+      });
+    }
   };
   
   const selectQari = (qari: typeof mockQariList[0]) => {
@@ -402,6 +512,27 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
             <ChevronRight size={24} />
           </button>
         </div>
+        
+        {viewMode === 'listening' && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handleGlobalPlayback}
+              className="flex items-center space-x-2 bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900 px-5 py-2 rounded-full hover:bg-islamic-blue/90 dark:hover:bg-islamic-lightBlue/90 transition-colors"
+            >
+              {globalPlayback ? (
+                <>
+                  <PauseCircle size={20} />
+                  <span>Pause Recitation</span>
+                </>
+              ) : (
+                <>
+                  <PlayCircle size={20} />
+                  <span>Play Surah</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
       
       <div className="reader-controls flex justify-between items-center mb-5 glass-card rounded-xl p-3 border border-islamic-blue/20 bg-white/90 dark:bg-gray-800/90 dark:border-gray-700 shadow-md">
@@ -492,6 +623,25 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         )}
       </div>
       
+      {/* Add audio controls bar when in listening mode */}
+      {viewMode === 'listening' && !isPlaying && !globalPlayback && (
+        <div className="listening-bar glass-card rounded-xl p-4 mb-6 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-islamic-blue/30 shadow-lg text-center">
+          <div className="text-lg text-islamic-blue dark:text-islamic-lightBlue mb-3">
+            Ready to listen to Surah {currentSurah.name}
+          </div>
+          <div className="text-sm text-muted-foreground dark:text-gray-300 mb-4">
+            Recited by {selectedQari.name}
+          </div>
+          <button
+            onClick={handleGlobalPlayback}
+            className="inline-flex items-center space-x-2 bg-islamic-blue text-white dark:bg-islamic-lightBlue dark:text-gray-900 px-5 py-2 rounded-full hover:bg-islamic-blue/90 dark:hover:bg-islamic-lightBlue/90 transition-colors"
+          >
+            <PlayCircle size={20} />
+            <span>Start Listening</span>
+          </button>
+        </div>
+      )}
+      
       <div className="verses-container space-y-5" style={{ fontSize: `${fontSize}rem` }}>
         {currentSurah.verses.map((verse, index) => (
           <div 
@@ -549,11 +699,13 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       </div>
       
       <div className="audio-controls fixed bottom-20 left-0 right-0 flex justify-center z-20">
-        {isPlaying && (
+        {(isPlaying || globalPlayback) && (
           <div className="glass-card px-4 py-2 rounded-full flex items-center space-x-3 border border-islamic-blue/20 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 shadow-lg">
             <button
               onClick={() => {
-                if (isPlaying) {
+                if (globalPlayback) {
+                  handleGlobalPlayback();
+                } else if (isPlaying) {
                   if (audioRef.current) {
                     audioRef.current.pause();
                     setIsPlaying(false);
@@ -570,7 +722,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
                 {selectedQari.name}
               </span>
               <span className="mx-1">•</span>
-              <span>Verse {currentVerseId}</span>
+              <span>{globalPlayback ? `Surah ${currentSurah.name}` : `Verse ${currentVerseId}`}</span>
             </div>
             
             <button
