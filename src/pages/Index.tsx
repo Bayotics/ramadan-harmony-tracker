@@ -113,11 +113,15 @@ const Index = () => {
             href="https://www.paypal.com/donate/?business=CB2Y4PCSEG3WU&no_recurring=0&currency_code=USD"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center mt-2 px-4 py-2 rounded-full bg-islamic-gold/10 text-islamic-gold hover:bg-islamic-gold/20 transition-colors"
+            className="inline-flex items-center mt-2 px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             <Heart size={16} className="mr-2" />
             Support Ramadan Timekeeper
           </a>
+          <p className="mt-2 text-xs text-muted-foreground max-w-lg mx-auto">
+            Your donation helps provide meals for those fasting and improves this app for the global Muslim community. 
+            Join us in spreading kindness and making prayer times more accessible.
+          </p>
         </div>
       </div>
     </Layout>
