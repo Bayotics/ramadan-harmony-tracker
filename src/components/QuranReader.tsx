@@ -168,11 +168,11 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const demoAudioNotes = {
-    1: [130.81, 146.83, 196.00, 220.00],
-    2: [138.59, 158.74, 184.99, 207.65],
-    3: [146.83, 164.81, 196.00, 220.00],
-    4: [138.59, 155.56, 196.00, 220.00],
-    5: [130.81, 146.83, 174.61, 196.00],
+    1: [80, 85, 90, 95],
+    2: [75, 80, 85, 90],
+    3: [70, 75, 80, 85],
+    4: [65, 70, 75, 80],
+    5: [60, 65, 70, 75],
   };
   
   const demoAudioDurations = {
@@ -274,90 +274,104 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
       
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = isMuted ? 0 : 0.2;
-      gainNode.connect(audioContext.destination);
-      gainNodeRef.current = gainNode;
-      
-      const notes = demoAudioNotes[surahNumber as keyof typeof demoAudioNotes] || demoAudioNotes[1];
+      const mainGainNode = audioContext.createGain();
+      mainGainNode.gain.value = isMuted ? 0 : 0.3;
+      mainGainNode.connect(audioContext.destination);
+      gainNodeRef.current = mainGainNode;
       
       const now = audioContext.currentTime;
-      let currentTime = now;
-      const segmentDuration = duration / (notes.length * 3);
+      const totalDuration = duration;
       
-      const createVoicelikePattern = () => {
-        const carrier = audioContext.createOscillator();
-        carrier.type = 'sine';
-        const modulator = audioContext.createOscillator();
-        modulator.type = 'triangle';
-        const modulationGain = audioContext.createGain();
-        modulationGain.gain.value = 10;
-        modulator.connect(modulationGain);
-        modulationGain.connect(carrier.frequency);
-        const formantFilter = audioContext.createBiquadFilter();
-        formantFilter.type = 'bandpass';
-        formantFilter.Q.value = 2;
-        formantFilter.frequency.value = 800;
-        carrier.connect(formantFilter);
-        formantFilter.connect(gainNode);
-        return { carrier, modulator, formantFilter };
-      };
+      const compressor = audioContext.createDynamicsCompressor();
+      compressor.threshold.value = -24;
+      compressor.knee.value = 30;
+      compressor.ratio.value = 12;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.25;
+      compressor.connect(mainGainNode);
       
-      notes.forEach((baseFreq, index) => {
-        const voice1 = createVoicelikePattern();
-        const voice2 = createVoicelikePattern();
+      const formantFilter = audioContext.createBiquadFilter();
+      formantFilter.type = 'bandpass';
+      formantFilter.frequency.value = 500;
+      formantFilter.Q.value = 0.5;
+      formantFilter.connect(compressor);
+      
+      const throatFilter = audioContext.createBiquadFilter();
+      throatFilter.type = 'lowshelf';
+      throatFilter.frequency.value = 1200;
+      throatFilter.gain.value = 15;
+      throatFilter.connect(formantFilter);
+      
+      const voices = [];
+      
+      for (let i = 0; i < 3; i++) {
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = i === 0 ? 'sine' : (i === 1 ? 'triangle' : 'sawtooth');
         
-        voice1.carrier.frequency.setValueAtTime(baseFreq, currentTime);
-        voice2.carrier.frequency.setValueAtTime(baseFreq * 1.003, currentTime);
+        const baseFreq = demoAudioNotes[surahNumber as keyof typeof demoAudioNotes][0] || 85;
+        oscillator.frequency.value = baseFreq - (i * 0.5);
         
-        voice1.formantFilter.frequency.setValueAtTime(800, currentTime);
-        voice2.formantFilter.frequency.setValueAtTime(1200, currentTime);
+        const oscGain = audioContext.createGain();
+        oscGain.gain.value = i === 0 ? 0.5 : (i === 1 ? 0.2 : 0.05);
         
-        voice1.carrier.start(currentTime);
-        voice1.modulator.start(currentTime);
-        voice2.carrier.start(currentTime);
-        voice2.modulator.start(currentTime);
+        oscillator.connect(oscGain);
+        oscGain.connect(throatFilter);
         
-        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.01, currentTime);
-        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.2, currentTime + segmentDuration * 0.1);
-        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.2, currentTime + segmentDuration * 0.8);
-        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.01, currentTime + segmentDuration);
+        const syllablesCount = Math.floor(totalDuration * 2);
+        const syllableDuration = totalDuration / syllablesCount;
         
-        const pitchPoints = 8;
-        for (let i = 0; i < pitchPoints; i++) {
-          const pitchTime = currentTime + (i * segmentDuration / pitchPoints);
-          const contourValue = Math.sin(i / pitchPoints * Math.PI) * 4;
-          voice1.carrier.frequency.linearRampToValueAtTime(
-            baseFreq + contourValue, 
-            pitchTime
+        for (let s = 0; s < syllablesCount; s++) {
+          const startTime = now + (s * syllableDuration);
+          
+          const pitchPattern = Math.sin((s / syllablesCount) * Math.PI) * 3;
+          const variation = Math.random() * 1.5;
+          
+          oscillator.frequency.setValueAtTime(
+            baseFreq + pitchPattern + variation - (i * 0.5), 
+            startTime
           );
-          voice2.carrier.frequency.linearRampToValueAtTime(
-            baseFreq * 1.003 + contourValue, 
-            pitchTime
+          
+          oscGain.gain.setValueAtTime(0.01, startTime);
+          oscGain.gain.linearRampToValueAtTime(
+            i === 0 ? 0.5 : (i === 1 ? 0.2 : 0.05), 
+            startTime + 0.05
           );
+          oscGain.gain.setValueAtTime(
+            i === 0 ? 0.5 : (i === 1 ? 0.2 : 0.05), 
+            startTime + syllableDuration * 0.7
+          );
+          oscGain.gain.linearRampToValueAtTime(0.01, startTime + syllableDuration * 0.99);
         }
         
-        voice1.carrier.stop(currentTime + segmentDuration);
-        voice1.modulator.stop(currentTime + segmentDuration);
-        voice2.carrier.stop(currentTime + segmentDuration);
-        voice2.modulator.stop(currentTime + segmentDuration);
+        oscillator.start(now);
+        oscillator.stop(now + totalDuration);
         
-        oscillatorRefs.current.push(voice1.carrier, voice1.modulator, voice2.carrier, voice2.modulator);
+        oscillatorRefs.current.push(oscillator);
+        voices.push({ oscillator, gain: oscGain });
+      }
+      
+      const breathingPoints = Math.floor(totalDuration / 3);
+      for (let b = 0; b < breathingPoints; b++) {
+        const breathTime = now + (b * 3) + 2;
         
-        currentTime += segmentDuration;
-      });
+        if (breathTime < now + totalDuration) {
+          mainGainNode.gain.setValueAtTime(mainGainNode.gain.value, breathTime);
+          mainGainNode.gain.linearRampToValueAtTime(0.05, breathTime + 0.2);
+          mainGainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.3, breathTime + 0.5);
+        }
+      }
       
       const convolver = audioContext.createConvolver();
-      
-      const impulseLength = audioContext.sampleRate * 1.5;
+      const impulseLength = audioContext.sampleRate * 2.5;
       const impulse = audioContext.createBuffer(2, impulseLength, audioContext.sampleRate);
+      
       const impulseL = impulse.getChannelData(0);
       const impulseR = impulse.getChannelData(1);
       
       for (let i = 0; i < impulseLength; i++) {
         const decay = Math.exp(-3 * i / impulseLength);
-        impulseL[i] = (Math.random() * 2 - 1) * decay;
-        impulseR[i] = (Math.random() * 2 - 1) * decay;
+        impulseL[i] = (Math.random() * 2 - 1) * decay * 0.3;
+        impulseR[i] = (Math.random() * 2 - 1) * decay * 0.3;
       }
       
       convolver.buffer = impulse;
@@ -365,23 +379,23 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const reverbGain = audioContext.createGain();
       reverbGain.gain.value = 0.3;
       
-      gainNode.connect(convolver);
+      mainGainNode.connect(convolver);
       convolver.connect(reverbGain);
       reverbGain.connect(audioContext.destination);
       
       if (onEnd) {
         setTimeout(() => {
           if (onEnd) onEnd();
-        }, duration * 1000);
+        }, totalDuration * 1000);
       }
       
-      console.log("Voice-like audio playback started successfully");
+      console.log("Voice-like Quran recitation audio started successfully");
       return true;
     } catch (synthError) {
       console.error("Failed to create voice-like audio:", synthError);
       toast({
         title: "Audio Error",
-        description: "Could not create voice-like audio simulation. Please try a different browser or check your audio settings.",
+        description: "Could not create Quran recitation audio. Please try using Chrome or a recent version of Safari.",
         variant: "destructive",
       });
       return false;
@@ -450,7 +464,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     setIsMuted(newMutedState);
     
     if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = newMutedState ? 0 : 0.2;
+      gainNodeRef.current.gain.value = newMutedState ? 0 : 0.3;
     }
     
     toast({
