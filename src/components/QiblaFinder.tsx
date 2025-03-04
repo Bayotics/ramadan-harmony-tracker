@@ -272,21 +272,21 @@ const QiblaFinder: React.FC = () => {
               </div>
             </div>
             
-            {/* Compass needles with new design */}
+            {/* Improved Compass needles with better alignment */}
             <div 
               className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-20"
               style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
             >
-              {/* Needle design */}
-              <div className="relative h-56 flex flex-col items-center">
-                {/* North pointing needle (red) */}
-                <div className="w-6 h-[7rem] bg-gradient-to-t from-red-900 via-red-700 to-red-500 rounded-t-full shadow-lg -mt-[7rem]"></div>
+              {/* Needle design with perfect alignment */}
+              <div className="relative flex flex-col items-center">
+                {/* North pointing needle (red) - reduced height for better fit */}
+                <div className="absolute w-3 h-28 bg-gradient-to-t from-red-900 via-red-700 to-red-500 rounded-t-full shadow-lg -mt-28 left-1/2 -translate-x-1/2"></div>
                 
-                {/* South pointing needle (blue) */}
-                <div className="w-6 h-[7rem] bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 rounded-b-full shadow-lg"></div>
+                {/* South pointing needle (blue) - reduced height for better fit */}
+                <div className="absolute w-3 h-28 bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 rounded-b-full shadow-lg mt-0 left-1/2 -translate-x-1/2"></div>
                 
                 {/* Center pivot */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gray-300/20 border-2 border-gray-400/30"></div>
+                <div className="absolute w-10 h-10 rounded-full bg-gray-300/20 border-2 border-gray-400/30 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
               </div>
             </div>
           </div>

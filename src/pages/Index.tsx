@@ -3,7 +3,6 @@ import React from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import PrayerTimes from '../components/PrayerTimes';
-import HomeWidget from '../components/HomeWidget';
 import DailyDua from '../components/DailyDua';
 import UpcomingPrayerWidget from '../components/UpcomingPrayerWidget';
 import { Moon, Sun, Book, Clock, Compass, Heart } from 'lucide-react';
@@ -60,10 +59,6 @@ const Index = () => {
                   </div>
                   <h3 className="font-medium text-foreground dark:text-gray-100">{getTranslation('qibla')}</h3>
                 </Link>
-              </div>
-              
-              <div className="w-full">
-                <HomeWidget />
               </div>
             </div>
             
