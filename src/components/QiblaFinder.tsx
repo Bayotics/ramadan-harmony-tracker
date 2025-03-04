@@ -3,6 +3,7 @@ import { Compass, MapPin, Navigation, RotateCw, AlertCircle } from 'lucide-react
 import { calculateQiblaDirection, getUserLocation } from '../utils/qiblaDirection';
 import { useLanguage } from '../contexts/LanguageContext';
 import { toast } from "../components/ui/use-toast";
+import { Switch } from "../components/ui/switch";
 
 const QiblaFinder: React.FC = () => {
   const { language, getTranslation } = useLanguage();
@@ -133,7 +134,7 @@ const QiblaFinder: React.FC = () => {
   const isRTL = language === 'ar';
   
   return (
-    <div className="qibla-finder flex flex-col items-center justify-center py-4 animate-fade-in">
+    <div className="qibla-finder flex flex-col items-center justify-center py-4">
       {isCalibrating ? (
         <div className="text-center mb-6">
           <div className="inline-block animate-spin-slow text-purple-400 mb-2">
@@ -164,158 +165,109 @@ const QiblaFinder: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500 
-                          hover:scale-105 transform-gpu">
-            <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 
-                            bg-gradient-to-br from-gray-900 to-gray-800 shadow-[0_0_25px_rgba(139,92,246,0.2)] 
-                            overflow-hidden backdrop-blur-lg">
-              <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
-              <div className="absolute inset-0 rounded-full shadow-[inset_0_0_15px_rgba(139,92,246,0.2)]"></div>
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">0</div>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">90</div>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">180</div>
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">270</div>
-              <div className="absolute top-[12%] right-[12%] text-sm font-bold text-purple-200">45</div>
-              <div className="absolute bottom-[12%] right-[12%] text-sm font-bold text-purple-200">135</div>
-              <div className="absolute bottom-[12%] left-[12%] text-sm font-bold text-purple-200">225</div>
-              <div className="absolute top-[12%] left-[12%] text-sm font-bold text-purple-200">315</div>
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 font-bold text-lg text-red-500 filter drop-shadow-md">
-                {getTranslation("N")}
+          <div className="flex items-center justify-between w-full max-w-md mb-6 px-4">
+            <div className="flex items-center space-x-3">
+              <img src="/lovable-uploads/642dc626-43c1-4f6e-9d41-1647654d1c98.png" 
+                   alt="Prayer Times" 
+                   className="w-12 h-12 rounded-full" />
+              <div className="text-left">
+                <h3 className="text-lg font-semibold text-gray-200">
+                  {getTranslation("Qibla Direction")}
+                </h3>
+                {qiblaAngle !== null && (
+                  <p className="text-sm text-gray-400">
+                    {Math.round(qiblaAngle)}° {getTranslation("east of north")}
+                  </p>
+                )}
               </div>
-              <div className="absolute right-8 top-1/2 -translate-y-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
-                {getTranslation("E")}
-              </div>
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
-                {getTranslation("S")}
-              </div>
-              <div className="absolute left-8 top-1/2 -translate-y-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
-                {getTranslation("W")}
-              </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full
-                              bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md
-                              border border-purple-500/20 shadow-[inset_0_0_10px_rgba(139,92,246,0.15)]"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full 
-                              bg-gradient-to-br from-gray-700 to-gray-900 
-                              border border-purple-500/40 z-20 shadow-[0_0_10px_rgba(139,92,246,0.3)]"></div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">{getTranslation("Use compass")}</span>
+              <Switch defaultChecked />
+            </div>
+          </div>
+
+          <div className="relative w-80 h-80">
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-600 
+                          bg-white dark:bg-gray-900">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 text-xl font-bold text-emerald-600">N</div>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xl font-bold text-emerald-600">E</div>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xl font-bold text-emerald-600">S</div>
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 text-xl font-bold text-emerald-600">W</div>
+
               {Array.from({ length: 72 }).map((_, i) => (
                 <div 
                   key={i} 
-                  className={`absolute ${
-                    i % 9 === 0 
-                      ? 'h-6 w-1.5 bg-purple-400/70' 
-                      : i % 3 === 0 
-                        ? 'h-4 w-1 bg-purple-400/50' 
-                        : 'h-2 w-0.5 bg-purple-400/30'
-                  } transition-all duration-300`}
+                  className={`absolute h-2 w-0.5 ${
+                    i % 9 === 0 ? 'bg-emerald-600 h-4' : 'bg-emerald-600/30'
+                  }`}
                   style={{
-                    top: '4px',
+                    top: '0',
                     left: '50%',
+                    transformOrigin: 'bottom',
                     transform: `translateX(-50%) rotate(${i * 5}deg)`,
-                    transformOrigin: 'bottom center',
                   }}
-                ></div>
+                />
               ))}
-              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/30"></div>
-              <div className="absolute top-0 left-1/2 h-full w-0.5 bg-indigo-500/30 -translate-x-1/2"></div>
-              <div className="absolute top-0 left-0 w-full h-full">
-                <div className="absolute top-0 left-0 w-full h-full" 
-                     style={{ transform: 'rotate(45deg)' }}>
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/20 -translate-y-1/2"></div>
-                </div>
-                <div className="absolute top-0 left-0 w-full h-full" 
-                     style={{ transform: 'rotate(-45deg)' }}>
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/20 -translate-y-1/2"></div>
+
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-48 h-48 relative">
+                  <img 
+                    src="/lovable-uploads/642dc626-43c1-4f6e-9d41-1647654d1c98.png" 
+                    alt="Prayer Mat" 
+                    className="w-full h-full object-contain"
+                    style={{
+                      transform: `rotate(${-compassHeading}deg)`,
+                      transition: 'transform 0.3s ease-out'
+                    }}
+                  />
                 </div>
               </div>
-              <div className="absolute inset-0 rounded-full pulse-animation opacity-0"></div>
             </div>
+
             <div 
-              className="absolute z-30 transition-transform"
+              className="absolute inset-0"
               style={{ 
-                top: '5%', 
-                left: '50%', 
-                transform: `translateX(-50%) rotate(${-compassHeading}deg)` 
+                transform: `rotate(${compassRotation}deg)`,
+                transition: 'transform 0.3s ease-out'
               }}
             >
-              <div className="w-12 h-12 flex flex-col items-center">
-                <div className="w-8 h-8 bg-black border-2 border-yellow-500 flex items-center justify-center
-                                shadow-[0_0_10px_rgba(234,179,8,0.4)]">
-                  <div className="w-6 h-1 bg-yellow-500"></div>
-                </div>
-              </div>
-            </div>
-            <div 
-              className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-20"
-              style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
-            >
-              <div className="relative flex flex-col items-center">
-                <div className="absolute w-3 h-28 bg-gradient-to-t from-red-900 via-red-700 to-red-500 
-                                rounded-t-full -mt-28 left-1/2 -translate-x-1/2
-                                shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-                <div className="absolute w-3 h-28 bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 
-                                rounded-b-full mt-0 left-1/2 -translate-x-1/2
-                                shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                <div className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-gray-600/60 to-gray-800/60 
-                                backdrop-blur-md border-2 border-gray-400/40 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                                shadow-[0_0_8px_rgba(156,163,175,0.3)]"></div>
-              </div>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute h-6 w-2 bg-emerald-500"
+                  style={{
+                    top: '0',
+                    left: '50%',
+                    transformOrigin: 'bottom',
+                    transform: `translateX(-50%) rotate(${i * 45}deg)`,
+                  }}
+                />
+              ))}
             </div>
           </div>
-          {qiblaAngle !== null && (
-            <div className="qibla-info rounded-2xl px-8 py-5 text-center 
-                           bg-gradient-to-br from-gray-800/90 via-gray-800/80 to-gray-900/90 
-                           shadow-lg border border-purple-500/30 backdrop-blur-md w-80
-                           hover:shadow-[0_8px_30px_rgba(139,92,246,0.15)] transition-all duration-300">
-              <p className="text-xl font-semibold mb-2 text-gray-200 flex items-center justify-center">
-                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-purple-400`} />
-                {getTranslation("Qibla Direction")}: {Math.round(qiblaAngle)}°
+
+          {needsCalibration && (
+            <button 
+              onClick={calibrateCompass}
+              className="mt-6 flex items-center space-x-2 px-4 py-2 bg-emerald-600 
+                        text-white rounded-full hover:bg-emerald-700 transition-colors"
+            >
+              <RotateCw size={16} />
+              <span>{getTranslation("Calibrate Compass")}</span>
+            </button>
+          )}
+
+          {userLocation && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-400 flex items-center justify-center">
+                <MapPin size={14} className="mr-1" />
+                {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
               </p>
-              <p className="text-sm text-gray-300 mb-2">
-                {getTranslation("Direction")}: {directionLabel()}
-              </p>
-              {userLocation && (
-                <p className="flex items-center justify-center text-sm text-gray-400">
-                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-purple-400`} />
-                  {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
-                </p>
-              )}
-              {needsCalibration && (
-                <button 
-                  onClick={calibrateCompass}
-                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} 
-                             text-xs font-medium text-gray-200 bg-purple-900/50 px-3 py-1.5 rounded-full 
-                             hover:bg-purple-800/60 transition-all mx-auto
-                             shadow-[0_0_10px_rgba(139,92,246,0.2)] hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]`}
-                >
-                  <RotateCw size={12} className={isRTL ? 'ml-1' : 'mr-1'} />
-                  <span>{getTranslation("Calibrate Compass")}</span>
-                </button>
-              )}
             </div>
           )}
         </>
       )}
-      
-      <style>{`
-        @keyframes pulse-glow {
-          0% {
-            opacity: 0;
-            box-shadow: 0 0 5px 0 rgba(139, 92, 246, 0.5);
-          }
-          50% {
-            opacity: 0.1;
-            box-shadow: 0 0 20px 2px rgba(139, 92, 246, 0.7);
-          }
-          100% {
-            opacity: 0;
-            box-shadow: 0 0 5px 0 rgba(139, 92, 246, 0.5);
-          }
-        }
-        
-        .pulse-animation {
-          animation: pulse-glow 3s infinite ease-in-out;
-        }
-      `}</style>
     </div>
   );
 };
