@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
   };
   
   return (
-    <div className="min-h-full flex flex-col bg-pattern dark:bg-gray-900 text-foreground">
+    <div className="min-h-full flex flex-col bg-pattern dark:bg-gray-900 text-white">
       <main className="flex-1 pb-20">
         {children}
       </main>

@@ -17,7 +17,7 @@ const HomeWidget: React.FC = () => {
   return (
     <div className="home-widget rounded-2xl overflow-hidden border border-islamic-blue/20 dark:border-islamic-blue/15">
       <div className="widget-header bg-islamic-blue/10 dark:bg-islamic-blue/15 p-3 text-center">
-        <h3 className="font-semibold dark:text-white">Ramadan Timekeeper</h3>
+        <h3 className="font-semibold text-white">Ramadan Timekeeper</h3>
       </div>
       
       <div className="widget-content p-3 dark:text-gray-200">

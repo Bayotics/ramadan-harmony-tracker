@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fetchPrayerTimes, getNextPrayer, PrayerTime, getMockPrayerTimes } from '../utils/prayerTimes';
@@ -23,6 +22,20 @@ const PrayerTimes: React.FC = () => {
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               const { latitude, longitude } = position.coords;
+              
+              // Get location name from coordinates using reverse geocoding
+              try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await response.json();
+                const locationName = data.address ? 
+                  `${data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown'}` : 
+                  'Your location';
+                
+                localStorage.setItem('userLocationName', locationName);
+              } catch (error) {
+                console.error('Error getting location name:', error);
+              }
+              
               const times = await fetchPrayerTimes(latitude, longitude);
               setPrayerTimes(times);
               setNextPrayer(getNextPrayer(times));
@@ -40,7 +53,7 @@ const PrayerTimes: React.FC = () => {
               toast.error('Could not get your location. Using default prayer times.');
               setLoading(false);
             },
-            { timeout: 10000, enableHighAccuracy: true }
+            { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
           );
         } else {
           // Geolocation not supported
@@ -79,13 +92,24 @@ const PrayerTimes: React.FC = () => {
     setNextPrayer(null);
     setLoading(true);
     
-    // Re-run the location fetch logic (this will trigger the useEffect again)
-    navigator.geolocation.clearWatch(0);
-    
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+          
+          // Get location name from coordinates using reverse geocoding
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await response.json();
+            const locationName = data.address ? 
+              `${data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown'}` : 
+              'Your location';
+            
+            localStorage.setItem('userLocationName', locationName);
+          } catch (error) {
+            console.error('Error getting location name:', error);
+          }
+          
           const times = await fetchPrayerTimes(latitude, longitude);
           setPrayerTimes(times);
           setNextPrayer(getNextPrayer(times));
@@ -101,10 +125,14 @@ const PrayerTimes: React.FC = () => {
           setLocationStatus('error');
           toast.error('Could not refresh your location');
           setLoading(false);
-        }
+        },
+        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
       );
     }
   };
+  
+  // Get the user's location name from localStorage
+  const userLocationName = localStorage.getItem('userLocationName') || 'Your location';
   
   // Function to handle alarm toggles
   const toggleAlarm = (prayerName: string) => {
@@ -118,7 +146,7 @@ const PrayerTimes: React.FC = () => {
     <div className="prayer-times-container animate-fade-in p-4">
       <div className="date-display text-center mb-6">
         <p className="text-muted-foreground">{format(currentDate, 'EEEE, MMMM d, yyyy')}</p>
-        <p className="text-2xl font-semibold">{format(currentDate, 'h:mm a')}</p>
+        <p className="text-2xl font-semibold text-white">{format(currentDate, 'h:mm a')}</p>
         
         <div className="location-indicator flex items-center justify-center mt-2">
           {locationStatus === 'loading' && (
@@ -131,7 +159,7 @@ const PrayerTimes: React.FC = () => {
           {locationStatus === 'success' && (
             <div className="flex items-center text-sm text-islamic-green">
               <MapPin size={14} className="mr-1" />
-              <span>Using your location</span>
+              <span>{userLocationName}</span>
               <button 
                 onClick={handleRefreshLocation}
                 className="ml-2 text-islamic-blue hover:text-islamic-darkBlue transition-colors text-xs underline"
