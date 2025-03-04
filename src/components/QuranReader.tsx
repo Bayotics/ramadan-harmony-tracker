@@ -28,7 +28,6 @@ interface Surah {
   numberOfAyahs?: number;
 }
 
-// Initial surah data for immediate rendering while API loads
 const initialSurahsData: Record<number, Surah> = {
   1: {
     name: "Al-Fatiha",
@@ -47,7 +46,6 @@ const initialSurahsData: Record<number, Surah> = {
   }
 };
 
-// Fetch all surahs from the Quran API
 const fetchSurahs = async (): Promise<Record<number, Surah>> => {
   try {
     const response = await fetch('https://api.alquran.cloud/v1/surah');
@@ -81,10 +79,8 @@ const fetchSurahs = async (): Promise<Record<number, Surah>> => {
   }
 };
 
-// Fetch detailed surah data with verses
 const fetchSurahDetails = async (surahNumber: number): Promise<Surah> => {
   try {
-    // Get the detailed surah data with verses
     const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/en.asad`);
     const data = await response.json();
     
@@ -92,9 +88,7 @@ const fetchSurahDetails = async (surahNumber: number): Promise<Surah> => {
       throw new Error(`Failed to fetch surah ${surahNumber} details`);
     }
     
-    // Get the Arabic text using a reliable endpoint that provides proper Unicode
-    // Using quran-uthmani endpoint for better Arabic text rendering
-    const arabicResponse = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`);
+    const arabicResponse = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.uthmani`);
     const arabicData = await arabicResponse.json();
     
     if (arabicData.code !== 200) {
@@ -107,7 +101,7 @@ const fetchSurahDetails = async (surahNumber: number): Promise<Surah> => {
       numberInSurah: ayah.numberInSurah,
       arabic: arabicData.data.ayahs[index].text,
       translation: ayah.text,
-      transliteration: "", // API doesn't provide transliteration
+      transliteration: "",
       audio: ayah.audio
     }));
     
@@ -147,23 +141,19 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   
-  // Fetch all surahs
   const { data: allSurahs, isLoading: isLoadingSurahs, error: surahsError } = useQuery({
     queryKey: ['surahs'],
     queryFn: fetchSurahs
   });
   
-  // Fetch current surah details
   const { data: currentSurahData, isLoading: isLoadingSurahDetails, error: surahDetailsError } = useQuery({
     queryKey: ['surah', currentSurahNumber],
     queryFn: () => fetchSurahDetails(currentSurahNumber),
     enabled: !!currentSurahNumber
   });
   
-  // Current surah - use API data if available, otherwise fall back to initial data
   const currentSurah = currentSurahData || initialSurahsData[1];
   
-  // Total number of surahs
   const totalSurahs = allSurahs ? Object.keys(allSurahs).length : 114;
   
   useEffect(() => {
@@ -217,8 +207,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     if (audio) {
       setLoading(true);
       try {
-        // Use the full Quran API endpoint to get the complete surah audio
-        const edition = "ar.alafasy"; // Sheikh Mishari Rashid Al-Afasy recitation
+        const edition = "ar.alafasy";
         const fullAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${currentSurahNumber}.mp3`;
         
         setAudioSrc(fullAudioUrl);
@@ -299,7 +288,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   };
   
   const renderContent = () => {
-    // Show loading state while fetching surah details
     if (isLoadingSurahDetails) {
       return (
         <div className="flex-1 flex items-center justify-center">
@@ -311,7 +299,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       );
     }
     
-    // Show error message if there was an error fetching the surah
     if (surahDetailsError) {
       return (
         <div className="flex-1 flex items-center justify-center">
@@ -333,7 +320,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
         <div className="verses flex-1 overflow-y-auto px-4">
           {currentSurah.verses.map((verse) => (
             <div key={verse.id} className="verse mb-8">
-              <div className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100 font-arabic">
+              <div dir="rtl" className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100 font-arabic">
                 {verse.arabic}
               </div>
               
@@ -367,15 +354,18 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       return (
         <div className="display-view flex-1 flex items-center justify-center p-4">
           <div className="text-center">
-            <div className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 font-arabic leading-relaxed">
+            <div dir="rtl" className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 font-arabic leading-relaxed">
               {firstVerse.arabic}
             </div>
+            
             <div className="transliteration text-lg text-green-600 dark:text-green-400 mb-4">
               {firstVerse.transliteration || ''}
             </div>
+            
             <div className="translation text-gray-700 dark:text-gray-300">
               {firstVerse.translation}
             </div>
+            
             <div className="pagination mt-8 flex justify-center gap-2">
               {currentSurah.verses.slice(0, 10).map((verse, index) => (
                 <div 
@@ -489,7 +479,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
             {isLoadingSurahs ? '' : `"${currentSurah.translation}"`}
           </span>
         </div>
-        <div className="text-right arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
+        <div dir="rtl" className="text-right arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
           {isLoadingSurahs ? '' : currentSurah.arabicName}
         </div>
       </div>

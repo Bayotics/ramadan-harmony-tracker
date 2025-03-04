@@ -113,10 +113,15 @@
   .arabic-text {
     font-family: 'Scheherazade New', 'Amiri', serif;
     @apply text-right leading-loose tracking-normal;
+    unicode-bidi: isolate;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
   
   .font-arabic {
     font-family: 'Scheherazade New', 'Amiri', serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
   
   .page-container {
