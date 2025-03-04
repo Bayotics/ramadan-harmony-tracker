@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -165,7 +166,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [currentJuz, setCurrentJuz] = useState(1);
   const [globalPlayback, setGlobalPlayback] = useState(false);
   
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
@@ -201,18 +201,15 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       }
     }
     
-    if (audioContextRef.current) {
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
       try {
-        audioContextRef.current.close();
+        audioContextRef.current.close().catch(err => {
+          console.error("Error closing audio context:", err);
+        });
         audioContextRef.current = null;
       } catch (e) {
         console.error("Error closing audio context:", e);
       }
-    }
-    
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
     }
     
     setIsPlaying(false);
@@ -258,7 +255,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   };
   
   // Create synthesized audio using Web Audio API
-  const createSynthesizedAudio = (frequency: number, duration: number, callback?: () => void) => {
+  const createSynthesizedAudio = (frequency: number, duration: number, onEnd?: () => void) => {
     try {
       // Stop any existing audio
       stopAudio();
@@ -274,7 +271,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       
       // Create a gain node for volume control
       const gainNode = audioContext.createGain();
-      gainNode.gain.value = isMuted ? 0 : 0.2; // Lower volume to avoid startling the user
+      gainNode.gain.value = isMuted ? 0 : 0.3; // Set initial volume
       gainNode.connect(audioContext.destination);
       gainNodeRef.current = gainNode;
       
@@ -286,14 +283,14 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       
       // Add some "rhythm" by periodically changing the gain
       const now = audioContext.currentTime;
-      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.setValueAtTime(isMuted ? 0 : 0.3, now);
       
       // Create a "recitation" effect with changing amplitude and frequency
       for (let i = 0; i < duration * 2; i++) {
         const time = now + (i * 0.5);
-        const value = i % 2 === 0 ? 0.2 : 0.1;
+        const value = isMuted ? 0 : (i % 2 === 0 ? 0.3 : 0.15);
         gainNode.gain.linearRampToValueAtTime(value, time);
-        gainNode.gain.linearRampToValueAtTime(0.05, time + 0.25);
+        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.05, time + 0.25);
         
         // Slight frequency modulation for more realistic sound
         const freqMod = i % 3 === 0 ? frequency * 1.02 : (i % 3 === 1 ? frequency * 0.98 : frequency);
@@ -304,16 +301,17 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       oscillator.connect(gainNode);
       
       // Set callback for when audio finishes
-      oscillator.onended = () => {
-        setIsPlaying(false);
-        setGlobalPlayback(false);
-        if (callback) callback();
-      };
+      if (onEnd) {
+        setTimeout(() => {
+          if (onEnd) onEnd();
+        }, duration * 1000);
+      }
       
       // Start and stop the oscillator
       oscillator.start();
       oscillator.stop(audioContext.currentTime + duration);
       
+      console.log("Audio playback started successfully");
       return true;
     } catch (synthError) {
       console.error("Failed to create synthesized audio:", synthError);
@@ -341,7 +339,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     const duration = (demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10) / 3;
     
     // Create synthesized audio
-    const success = createSynthesizedAudio(frequency, duration);
+    const success = createSynthesizedAudio(frequency, duration, () => {
+      setIsPlaying(false);
+      setCurrentVerseId(null);
+    });
     
     if (success) {
       setIsPlaying(true);
@@ -371,7 +372,11 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const duration = demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10;
       
       // Create synthesized audio
-      const success = createSynthesizedAudio(frequency, duration);
+      const success = createSynthesizedAudio(frequency, duration, () => {
+        setIsPlaying(false);
+        setGlobalPlayback(false);
+        setCurrentVerseId(null);
+      });
       
       if (success) {
         setIsPlaying(true);
@@ -385,21 +390,17 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   };
   
   const handleMuteToggle = () => {
-    setIsMuted(!isMuted);
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
     
     // If we're using Web Audio API, update the gain
     if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = isMuted ? 0.2 : 0; // Toggle volume
-    }
-    
-    // If using audio element
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
+      gainNodeRef.current.gain.value = newMutedState ? 0 : 0.3;
     }
     
     toast({
-      title: isMuted ? "Audio Unmuted" : "Audio Muted",
-      description: isMuted ? "You can now hear the recitation" : "Audio has been muted",
+      title: newMutedState ? "Audio Muted" : "Audio Unmuted",
+      description: newMutedState ? "Audio has been muted" : "You can now hear the recitation",
     });
   };
   
