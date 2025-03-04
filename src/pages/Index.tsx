@@ -6,6 +6,7 @@ import PrayerTimes from '../components/PrayerTimes';
 import Countdown from '../components/Countdown';
 import HomeWidget from '../components/HomeWidget';
 import DailyDua from '../components/DailyDua';
+import UpcomingPrayerWidget from '../components/UpcomingPrayerWidget';
 import { Moon, Sun, Book, Clock, Compass, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -27,6 +28,10 @@ const Index = () => {
               <div className="glass-card rounded-xl overflow-hidden border border-islamic-blue/20 shadow-lg">
                 <PrayerTimes />
               </div>
+            </div>
+            
+            <div className="mb-6">
+              <UpcomingPrayerWidget />
             </div>
             
             <div className="ramadan-times-grid grid grid-cols-1 md:grid-cols-2 gap-4">

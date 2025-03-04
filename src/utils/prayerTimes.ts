@@ -108,14 +108,22 @@ export const getNextPrayer = (prayerTimes: PrayerTime[] = []): PrayerTime | null
 };
 
 // Calculate time remaining until a prayer
-export const getTimeRemaining = (prayerTime: string): { hours: number; minutes: number } => {
+export const getTimeRemaining = (prayerTime: string): { hours: number; minutes: number; seconds: number } => {
   const [prayerHours, prayerMinutes] = prayerTime.split(':').map(Number);
   const now = new Date();
   const currentHours = now.getHours();
   const currentMinutes = now.getMinutes();
+  const currentSeconds = now.getSeconds();
   
   let diffHours = prayerHours - currentHours;
   let diffMinutes = prayerMinutes - currentMinutes;
+  let diffSeconds = 60 - currentSeconds;
+  
+  if (diffSeconds === 60) {
+    diffSeconds = 0;
+  } else {
+    diffMinutes -= 1;
+  }
   
   if (diffMinutes < 0) {
     diffMinutes += 60;
@@ -128,8 +136,17 @@ export const getTimeRemaining = (prayerTime: string): { hours: number; minutes: 
   
   return {
     hours: diffHours,
-    minutes: diffMinutes
+    minutes: diffMinutes,
+    seconds: diffSeconds
   };
+};
+
+// Format 12-hour time (e.g., "05:11 AM")
+export const formatAmPmTime = (time: string): string => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+  return `${formattedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 };
 
 // Calculate Suhoor and Iftar times correctly based on Fajr and Maghrib
