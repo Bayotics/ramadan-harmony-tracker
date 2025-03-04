@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Compass, MapPin, Star, Navigation, RotateCw, AlertCircle } from 'lucide-react';
+import { Compass, MapPin, Navigation, RotateCw, AlertCircle } from 'lucide-react';
 import { calculateQiblaDirection, getUserLocation } from '../utils/qiblaDirection';
 import { useLanguage } from '../contexts/LanguageContext';
 import { toast } from "../components/ui/use-toast";
@@ -156,20 +156,20 @@ const QiblaFinder: React.FC = () => {
           <div className="inline-block animate-spin-slow text-purple-600 mb-2">
             <Compass size={60} strokeWidth={1.5} />
           </div>
-          <p className="text-lg font-medium bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
+          <p className="text-lg font-medium text-gray-200">
             {getTranslation("Calibrating compass...")}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-400">
             {getTranslation("Please hold your device level")}
           </p>
         </div>
       ) : permissionDenied ? (
-        <div className="text-center mb-6 p-6 rounded-xl bg-red-50 border border-red-200">
+        <div className="text-center mb-6 p-6 rounded-xl bg-gray-800/90 border border-red-500/30">
           <AlertCircle size={60} className="mx-auto text-red-500 mb-4" />
-          <h3 className="text-xl font-semibold text-red-800 mb-2">
+          <h3 className="text-xl font-semibold text-red-300 mb-2">
             {getTranslation("Compass Access Required")}
           </h3>
-          <p className="text-gray-700 mb-4">
+          <p className="text-gray-300 mb-4">
             {getTranslation("Please allow access to your device's compass to find Qibla direction")}
           </p>
           <button 
@@ -181,46 +181,54 @@ const QiblaFinder: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500 hover:scale-105">
+          <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500">
             {/* Compass outer ring with modern border */}
-            <div className="absolute inset-0 rounded-full border-4 border-purple-300/40 bg-gradient-to-br from-white to-purple-50 shadow-lg backdrop-blur-sm overflow-hidden">
+            <div className="absolute inset-0 rounded-full border-4 border-gray-500/40 bg-gray-800 shadow-lg overflow-hidden">
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
               
-              {/* Cardinal directions with enhanced styling */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-purple-900 flex flex-col items-center">
-                <Star size={16} className="mb-1 text-purple-400" />
-                <span>{getTranslation("N")}</span>
+              {/* Numerical degree markers */}
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold text-gray-300">0</div>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-300">90</div>
+              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold text-gray-300">180</div>
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-300">270</div>
+              
+              {/* 45-degree markers */}
+              <div className="absolute top-[12%] right-[12%] text-sm font-bold text-gray-300">45</div>
+              <div className="absolute bottom-[12%] right-[12%] text-sm font-bold text-gray-300">135</div>
+              <div className="absolute bottom-[12%] left-[12%] text-sm font-bold text-gray-300">225</div>
+              <div className="absolute top-[12%] left-[12%] text-sm font-bold text-gray-300">315</div>
+              
+              {/* Cardinal directions */}
+              <div className="absolute top-8 left-1/2 -translate-x-1/2 font-bold text-lg text-red-500">
+                {getTranslation("N")}
               </div>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-purple-900 flex items-center">
-                <span>{getTranslation("E")}</span>
-                <Star size={16} className="ml-1 text-purple-400" />
+              <div className="absolute right-8 top-1/2 -translate-y-1/2 font-bold text-lg text-gray-200">
+                {getTranslation("E")}
               </div>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-purple-900 flex flex-col items-center">
-                <span>{getTranslation("S")}</span>
-                <Star size={16} className="mt-1 text-purple-400" />
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-bold text-lg text-gray-200">
+                {getTranslation("S")}
               </div>
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-purple-900 flex items-center">
-                <Star size={16} className="mr-1 text-purple-400" />
-                <span>{getTranslation("W")}</span>
+              <div className="absolute left-8 top-1/2 -translate-y-1/2 font-bold text-lg text-gray-200">
+                {getTranslation("W")}
               </div>
               
-              {/* Inner circle with enhanced gradient */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-purple-300/20 bg-gradient-to-br from-white/90 to-purple-50/80"></div>
+              {/* Inner circle */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-gray-500/30 bg-gray-700/80"></div>
               
-              {/* Subtle inner shadow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full shadow-inner opacity-20"></div>
+              {/* Inner center circle */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 border border-gray-500/40 z-20"></div>
               
-              {/* Degree markings with enhanced visibility */}
+              {/* Degree markings */}
               {Array.from({ length: 72 }).map((_, i) => (
                 <div 
                   key={i} 
                   className={`absolute ${
                     i % 9 === 0 
-                      ? 'h-5 w-1 bg-purple-500/80' 
+                      ? 'h-5 w-1 bg-gray-400/70' 
                       : i % 3 === 0 
-                        ? 'h-3 w-0.5 bg-purple-400/60' 
-                        : 'h-2 w-0.5 bg-purple-300/30'
+                        ? 'h-3 w-0.5 bg-gray-400/50' 
+                        : 'h-2 w-0.5 bg-gray-400/30'
                   }`}
                   style={{
                     top: '8px',
@@ -231,59 +239,70 @@ const QiblaFinder: React.FC = () => {
                 ></div>
               ))}
               
-              {/* Current heading indicator */}
-              <div className="absolute top-16 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                <div className="w-1 h-10 bg-purple-600/60"></div>
-                <div className="mt-1 px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium">
-                  {Math.round(compassHeading)}°
+              {/* Cross lines */}
+              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/50"></div>
+              <div className="absolute top-0 left-1/2 h-full w-0.5 bg-gray-600/50 -translate-x-1/2"></div>
+              
+              {/* Diagonal lines */}
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-0 left-0 w-full h-full" 
+                     style={{ transform: 'rotate(45deg)' }}>
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/30 -translate-y-1/2"></div>
+                </div>
+                <div className="absolute top-0 left-0 w-full h-full" 
+                     style={{ transform: 'rotate(-45deg)' }}>
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/30 -translate-y-1/2"></div>
                 </div>
               </div>
             </div>
             
-            {/* Compass needle with enhanced styling */}
+            {/* Kaaba symbol at the top */}
             <div 
-              className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-10"
+              className="absolute z-30 transition-transform"
+              style={{ 
+                top: '5%', 
+                left: '50%', 
+                transform: `translateX(-50%) rotate(${-compassHeading}deg)` 
+              }}
+            >
+              <div className="w-12 h-12 flex flex-col items-center">
+                <div className="w-8 h-8 bg-black border border-yellow-500 flex items-center justify-center">
+                  <div className="w-6 h-1 bg-yellow-500"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Compass needles with new design */}
+            <div 
+              className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-20"
               style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
             >
               {/* Needle design */}
-              <div className="relative h-64 w-4 flex flex-col items-center">
-                {/* North pointing needle */}
-                <div className="w-2 h-[7rem] bg-gradient-to-t from-purple-600 via-purple-400 to-white rounded-t-full shadow-lg"></div>
+              <div className="relative h-56 flex flex-col items-center">
+                {/* North pointing needle (red) */}
+                <div className="w-6 h-[7rem] bg-gradient-to-t from-red-900 via-red-700 to-red-500 rounded-t-full shadow-lg -mt-[7rem]"></div>
                 
-                {/* South pointing needle */}
-                <div className="w-2 h-[7rem] bg-gradient-to-b from-indigo-500 via-indigo-400 to-indigo-200 rounded-b-full shadow-lg"></div>
+                {/* South pointing needle (blue) */}
+                <div className="w-6 h-[7rem] bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 rounded-b-full shadow-lg"></div>
                 
-                {/* Kaaba indicator with enhanced animation and styling */}
-                <div className="absolute -top-9 left-1/2 -translate-x-1/2 flex flex-col items-center animate-float">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-900 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 glow-gold">
-                    <div className="w-8 h-8 bg-gradient-to-br from-white/90 to-purple-50 rounded-full flex items-center justify-center">
-                      <div className="w-5 h-5 bg-gradient-to-r from-purple-400 to-violet-300 rounded-full animate-pulse-gentle"></div>
-                    </div>
-                  </div>
-                  <div className="mt-1 text-xs font-semibold bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent">
-                    {getTranslation("Kaaba")}
-                  </div>
-                </div>
-                
-                {/* Center pivot with more dimension */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-white to-purple-50 border-2 border-purple-300/40 shadow-lg"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-purple-300/20 shadow-inner"></div>
+                {/* Center pivot */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gray-300/20 border-2 border-gray-400/30"></div>
               </div>
             </div>
           </div>
           
           {qiblaAngle !== null && (
-            <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-purple-50/90 shadow-lg border border-purple-300/30 w-80">
-              <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-purple-800 to-indigo-600 bg-clip-text text-transparent flex items-center justify-center">
-                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-purple-600`} />
+            <div className="qibla-info rounded-2xl px-8 py-5 text-center bg-gray-800/90 shadow-lg border border-gray-600/30 w-80">
+              <p className="text-xl font-semibold mb-2 text-gray-200 flex items-center justify-center">
+                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-purple-400`} />
                 {getTranslation("Qibla Direction")}: {Math.round(qiblaAngle)}°
               </p>
-              <p className="text-sm text-purple-900/80 mb-2">
+              <p className="text-sm text-gray-300 mb-2">
                 {getTranslation("Direction")}: {directionLabel()}
               </p>
               {userLocation && (
-                <p className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-purple-600`} />
+                <p className="flex items-center justify-center text-sm text-gray-400">
+                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-purple-400`} />
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
               )}
@@ -291,7 +310,7 @@ const QiblaFinder: React.FC = () => {
               {needsCalibration && (
                 <button 
                   onClick={calibrateCompass}
-                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-purple-700 bg-purple-500/10 px-3 py-1.5 rounded-full hover:bg-purple-500/20 transition-all mx-auto`}
+                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-gray-200 bg-purple-900/50 px-3 py-1.5 rounded-full hover:bg-purple-800/50 transition-all mx-auto`}
                 >
                   <RotateCw size={12} className={isRTL ? 'ml-1' : 'mr-1'} />
                   <span>{getTranslation("Calibrate Compass")}</span>
