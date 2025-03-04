@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getRamadanTimes, getTimeRemaining } from '../utils/prayerTimes';
+import { getRamadanTimes } from '../utils/prayerTimes';
 
 interface CountdownProps {
   type: 'iftar' | 'suhoor';
@@ -17,9 +17,26 @@ const Countdown: React.FC<CountdownProps> = ({ type }) => {
     setTimeLabel(targetTime);
     
     const updateCountdown = () => {
-      const { hours: h, minutes: m } = getTimeRemaining(targetTime);
-      setHours(h);
-      setMinutes(m);
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+      
+      let diffHours = targetHour - currentHour;
+      let diffMinutes = targetMinute - currentMinute;
+      
+      if (diffMinutes < 0) {
+        diffMinutes += 60;
+        diffHours -= 1;
+      }
+      
+      if (diffHours < 0) {
+        diffHours += 24; // Add 24 hours if target is tomorrow
+      }
+      
+      setHours(diffHours);
+      setMinutes(diffMinutes);
     };
     
     // Initial update

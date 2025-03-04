@@ -111,17 +111,24 @@ export const getNextPrayer = (prayerTimes: PrayerTime[] = []): PrayerTime | null
 export const getTimeRemaining = (prayerTime: string): { hours: number; minutes: number } => {
   const [prayerHours, prayerMinutes] = prayerTime.split(':').map(Number);
   const now = new Date();
-  const current = now.getHours() * 60 + now.getMinutes();
-  const prayer = prayerHours * 60 + prayerMinutes;
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
   
-  let diff = prayer - current;
-  if (diff < 0) {
-    diff += 24 * 60; // Add a day if prayer is tomorrow
+  let diffHours = prayerHours - currentHours;
+  let diffMinutes = prayerMinutes - currentMinutes;
+  
+  if (diffMinutes < 0) {
+    diffMinutes += 60;
+    diffHours -= 1;
+  }
+  
+  if (diffHours < 0) {
+    diffHours += 24; // Add 24 hours if prayer is tomorrow
   }
   
   return {
-    hours: Math.floor(diff / 60),
-    minutes: diff % 60
+    hours: diffHours,
+    minutes: diffMinutes
   };
 };
 
