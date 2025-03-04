@@ -126,12 +126,29 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const savedLanguage = localStorage.getItem('language') as LanguageType;
     if (savedLanguage && Object.keys(translations).includes(savedLanguage)) {
       setLanguageState(savedLanguage);
+      document.documentElement.lang = savedLanguage;
+      if (savedLanguage === 'ar') {
+        document.documentElement.dir = 'rtl';
+      } else {
+        document.documentElement.dir = 'ltr';
+      }
     }
   }, []);
 
   const setLanguage = (lang: LanguageType) => {
     setLanguageState(lang);
     localStorage.setItem('language', lang);
+    document.documentElement.lang = lang;
+    
+    // Handle RTL for Arabic
+    if (lang === 'ar') {
+      document.documentElement.dir = 'rtl';
+    } else {
+      document.documentElement.dir = 'ltr';
+    }
+    
+    // Force refresh UI components
+    window.dispatchEvent(new Event('language-changed'));
   };
 
   const getTranslation = (key: string): string => {

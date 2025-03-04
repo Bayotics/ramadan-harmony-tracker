@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Compass, MapPin, Star } from 'lucide-react';
+import { Compass, MapPin, Star, Navigation } from 'lucide-react';
 import { calculateQiblaDirection, getUserLocation } from '../utils/qiblaDirection';
 
 const QiblaFinder: React.FC = () => {
@@ -63,27 +63,27 @@ const QiblaFinder: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="compass-container relative w-72 h-72 mb-8">
-            {/* Compass outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-islamic-blue/30 bg-gradient-to-br from-white to-islamic-cream shadow-lg backdrop-blur-sm overflow-hidden">
+          <div className="compass-container relative w-72 h-72 mb-8 transition-all duration-500 hover:scale-105">
+            {/* Compass outer ring with golden border */}
+            <div className="absolute inset-0 rounded-full border-4 border-islamic-gold/30 bg-gradient-to-br from-white to-islamic-cream shadow-lg backdrop-blur-sm overflow-hidden">
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
               
               {/* Cardinal directions with enhanced styling */}
               <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
-                <Star size={16} className="mb-1 text-islamic-blue" />
+                <Star size={16} className="mb-1 text-islamic-gold" />
                 <span>N</span>
               </div>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
                 <span>E</span>
-                <Star size={16} className="ml-1 text-islamic-blue" />
+                <Star size={16} className="ml-1 text-islamic-gold" />
               </div>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
                 <span>S</span>
-                <Star size={16} className="mt-1 text-islamic-blue" />
+                <Star size={16} className="mt-1 text-islamic-gold" />
               </div>
               <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
-                <Star size={16} className="mr-1 text-islamic-blue" />
+                <Star size={16} className="mr-1 text-islamic-gold" />
                 <span>W</span>
               </div>
               
@@ -138,15 +138,16 @@ const QiblaFinder: React.FC = () => {
                 </div>
                 
                 {/* Center pivot with more dimension */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-white to-islamic-cream border-2 border-islamic-blue/40 shadow-lg"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-islamic-blue/20 shadow-inner"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-white to-islamic-cream border-2 border-islamic-gold/40 shadow-lg"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-islamic-gold/20 shadow-inner"></div>
               </div>
             </div>
           </div>
           
           {qiblaAngle !== null && (
-            <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-islamic-cream/90 shadow-lg border border-islamic-blue/20">
-              <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent">
+            <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-islamic-cream/90 shadow-lg border border-islamic-gold/30">
+              <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent flex items-center justify-center">
+                <Navigation size={18} className="mr-2 text-islamic-blue" />
                 Qibla Direction: {Math.round(qiblaAngle)}°
               </p>
               {userLocation && (

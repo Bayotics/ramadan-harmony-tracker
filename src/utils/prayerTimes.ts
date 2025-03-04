@@ -72,10 +72,9 @@ const formatTime = (timeString: string): string => {
   return timeString.split(' ')[0];
 };
 
-// Mock prayer time data (used as fallback if API fails)
+// Consistent mock prayer time data (used as fallback if API fails)
 export const getMockPrayerTimes = (): PrayerTime[] => {
-  // In a real implementation, this would call an API like Aladhan
-  // For this demo, we'll return mock data
+  // Make sure these times are consistent across the application
   return [
     { name: 'Fajr', time: '04:45', arabicName: 'الفجر' },
     { name: 'Sunrise', time: '06:15', arabicName: 'الشروق' },
