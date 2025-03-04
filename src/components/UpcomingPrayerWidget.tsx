@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getPrayerTimes } from '../utils/prayerTimes';
+import { getMockPrayerTimes, getNextPrayer, getTimeRemaining } from '../utils/prayerTimes';
 import { useLocation } from 'react-router-dom';
 
 const UpcomingPrayerWidget = () => {
@@ -11,66 +12,20 @@ const UpcomingPrayerWidget = () => {
   const { getTranslation } = useLanguage();
   const location = useLocation();
 
-  const calculateTimeRemaining = (targetTime: Date) => {
-    const now = new Date();
-    const difference = targetTime.getTime() - now.getTime();
-
-    if (difference > 0) {
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      return `${hours}h ${minutes}m`;
-    } else {
-      return 'Prayer time!';
-    }
-  };
-
   useEffect(() => {
     const updatePrayerTimes = () => {
-      const prayerTimes = getPrayerTimes();
-      if (prayerTimes) {
-        const now = new Date();
-        let nextPrayerName: string | null = null;
-        let nextPrayerDateTime: Date | null = null;
+      const nextPrayerInfo = getNextPrayer();
+      if (nextPrayerInfo) {
+        setNextPrayer(nextPrayerInfo.name);
+        setNextPrayerTime(nextPrayerInfo.time);
 
-        if (now < prayerTimes.fajr) {
-          nextPrayerName = 'Fajr';
-          nextPrayerDateTime = prayerTimes.fajr;
-        } else if (now < prayerTimes.sunrise) {
-          nextPrayerName = 'Sunrise';
-          nextPrayerDateTime = prayerTimes.sunrise;
-        } else if (now < prayerTimes.dhuhr) {
-          nextPrayerName = 'Dhuhr';
-          nextPrayerDateTime = prayerTimes.dhuhr;
-        } else if (now < prayerTimes.asr) {
-          nextPrayerName = 'Asr';
-          nextPrayerDateTime = prayerTimes.asr;
-        } else if (now < prayerTimes.maghrib) {
-          nextPrayerName = 'Maghrib';
-          nextPrayerDateTime = prayerTimes.maghrib;
-        } else if (now < prayerTimes.isha) {
-          nextPrayerName = 'Isha';
-          nextPrayerDateTime = prayerTimes.isha;
-        } else {
-          // If Isha has passed, set next prayer to Fajr of the next day
-          const tomorrow = new Date(now);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          tomorrow.setHours(0, 0, 0, 0); // Reset time to midnight
-          const tomorrowPrayerTimes = getPrayerTimes(tomorrow);
-          if (tomorrowPrayerTimes) {
-            nextPrayerName = 'Fajr';
-            nextPrayerDateTime = tomorrowPrayerTimes.fajr;
-          }
-        }
-
-        if (nextPrayerName && nextPrayerDateTime) {
-          setNextPrayer(nextPrayerName);
-          setNextPrayerTime(nextPrayerDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-          setTimeRemaining(calculateTimeRemaining(nextPrayerDateTime));
-        } else {
-          setNextPrayer(null);
-          setNextPrayerTime(null);
-          setTimeRemaining('');
-        }
+        // Calculate time remaining
+        const remaining = getTimeRemaining(nextPrayerInfo.time);
+        setTimeRemaining(`${remaining.hours}h ${remaining.minutes}m`);
+      } else {
+        setNextPrayer(null);
+        setNextPrayerTime(null);
+        setTimeRemaining('');
       }
     };
 
