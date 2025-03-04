@@ -142,6 +142,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [lastProgressUpdate, setLastProgressUpdate] = useState(0);
   const timeoutRef = useRef<number | null>(null);
+  const activeVerseRef = useRef<HTMLDivElement | null>(null);
   
   const { data: allSurahs, isLoading: isLoadingSurahs, error: surahsError } = useQuery({
     queryKey: ['surahs'],
@@ -187,37 +188,32 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   }, []);
   
   useEffect(() => {
-    if (currentSurah && currentSurah.verses.length > 0 && isPlaying) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      const totalVerses = currentSurah.verses.length;
-      
-      if (progress > 0 && duration > 0) {
-        const calculatedVerseIndex = Math.min(
-          Math.floor((progress / 100) * totalVerses),
-          totalVerses - 1
+    if (currentSurah && currentSurah.verses.length > 0 && audio && isPlaying) {
+      if (duration > 0) {
+        const estimatedVerseIndex = Math.min(
+          Math.floor((currentTime / duration) * currentSurah.verses.length),
+          currentSurah.verses.length - 1
         );
         
-        if (calculatedVerseIndex !== currentVerseIndex) {
-          setCurrentVerseIndex(calculatedVerseIndex);
-        }
-        
-        const averageTimePerVerse = duration / totalVerses;
-        
-        timeoutRef.current = window.setTimeout(() => {
-          const nextVerseIndex = (currentVerseIndex + 1) % totalVerses;
-          if (nextVerseIndex !== currentVerseIndex && isPlaying) {
-            setCurrentVerseIndex(nextVerseIndex);
+        if (estimatedVerseIndex !== currentVerseIndex) {
+          console.log(`Updating verse from ${currentVerseIndex} to ${estimatedVerseIndex} (${currentTime}s / ${duration}s)`);
+          setCurrentVerseIndex(estimatedVerseIndex);
+          
+          if (currentView === 'page' && activeVerseRef.current) {
+            activeVerseRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        }, averageTimePerVerse * 1000);
+        }
       }
     }
-  }, [currentTime, progress, isPlaying, currentSurah]);
+  }, [currentTime, duration, isPlaying, currentSurah, currentView]);
   
   useEffect(() => {
     setCurrentVerseIndex(0);
+    setProgress(0);
+    setCurrentTime(0);
+    if (audio) {
+      audio.currentTime = 0;
+    }
   }, [currentSurahNumber]);
   
   useEffect(() => {
@@ -234,21 +230,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       const percentage = (audio.currentTime / audio.duration) * 100;
       setProgress(percentage);
       setCurrentTime(audio.currentTime);
-      
-      if (Math.abs(percentage - lastProgressUpdate) > 1) {
-        setLastProgressUpdate(percentage);
-        
-        if (currentSurah && currentSurah.verses.length > 0) {
-          const estimatedVerseIndex = Math.min(
-            Math.floor((percentage / 100) * currentSurah.verses.length),
-            currentSurah.verses.length - 1
-          );
-          
-          if (estimatedVerseIndex !== currentVerseIndex) {
-            setCurrentVerseIndex(estimatedVerseIndex);
-          }
-        }
-      }
     }
   };
   
@@ -317,6 +298,15 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       const nextVerseIndex = (currentVerseIndex + 1) % currentSurah.verses.length;
       setCurrentVerseIndex(nextVerseIndex);
       
+      if (isPlaying && audio && duration > 0) {
+        const approximateTimePerVerse = duration / currentSurah.verses.length;
+        const newPosition = (nextVerseIndex * approximateTimePerVerse);
+        
+        if (newPosition < duration) {
+          audio.currentTime = newPosition;
+        }
+      }
+      
       if (nextVerseIndex === 0 && currentVerseIndex === currentSurah.verses.length - 1) {
         navigateToNextSurah();
       }
@@ -330,7 +320,17 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
           navigateToPrevSurah();
         }
       } else {
-        setCurrentVerseIndex(currentVerseIndex - 1);
+        const prevIndex = currentVerseIndex - 1;
+        setCurrentVerseIndex(prevIndex);
+        
+        if (isPlaying && audio && duration > 0) {
+          const approximateTimePerVerse = duration / currentSurah.verses.length;
+          const newPosition = (prevIndex * approximateTimePerVerse);
+          
+          if (newPosition >= 0 && newPosition < duration) {
+            audio.currentTime = newPosition;
+          }
+        }
       }
     }
   };
@@ -396,8 +396,12 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     if (currentView === 'page') {
       return (
         <div className="verses flex-1 overflow-y-auto px-4">
-          {currentSurah.verses.map((verse) => (
-            <div key={verse.id} className="verse mb-8">
+          {currentSurah.verses.map((verse, index) => (
+            <div 
+              key={verse.id} 
+              className={`verse mb-8 ${index === currentVerseIndex && isPlaying ? 'bg-emerald-50 dark:bg-emerald-950/30 p-2 rounded-lg' : ''}`}
+              ref={index === currentVerseIndex ? activeVerseRef : null}
+            >
               <div dir="rtl" className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100 font-arabic">
                 {verse.arabic}
               </div>
@@ -514,19 +518,17 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
             Recited by Sheikh Mishari Rashid Al-Afasy
           </p>
           
-          {isPlaying && (
-            <div className="mt-4 max-w-xs w-full bg-white/90 dark:bg-gray-800/90 rounded-lg p-3 shadow-md">
-              <p className="text-center text-sm text-gray-600 dark:text-gray-300">
-                Now Reciting:
-              </p>
-              <div dir="rtl" className="text-center arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
-                {currentVerse.arabic}
-              </div>
-              <div className="text-center text-xs text-emerald-500 mt-1">
-                Verse {currentVerseIndex + 1} of {currentSurah.verses.length}
-              </div>
+          <div className={`mt-6 max-w-xs w-full bg-white/90 dark:bg-gray-800/90 rounded-lg p-3 shadow-md ${isPlaying ? 'animate-pulse-gentle' : ''}`}>
+            <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+              {isPlaying ? "Now Reciting:" : "Current Verse:"}
+            </p>
+            <div dir="rtl" className="text-center arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
+              {currentVerse.arabic}
             </div>
-          )}
+            <div className="text-center text-xs text-emerald-500 mt-1">
+              Verse {currentVerseIndex + 1} of {currentSurah.verses.length}
+            </div>
+          </div>
           
           <div className="mt-8 w-full max-w-xs">
             <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -541,24 +543,22 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
             </div>
           </div>
           
-          {isPlaying && (
-            <div className="mt-4 flex space-x-2">
-              <button 
-                onClick={handlePrevVerse}
-                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                aria-label="Previous verse"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button 
-                onClick={handleNextVerse}
-                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                aria-label="Next verse"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          )}
+          <div className="mt-4 flex space-x-4">
+            <button 
+              onClick={handlePrevVerse}
+              className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+              aria-label="Previous verse"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={handleNextVerse}
+              className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+              aria-label="Next verse"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
         </div>
       );
     }
