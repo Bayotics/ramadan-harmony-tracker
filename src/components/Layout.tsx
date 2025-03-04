@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Book, Compass, Moon, Settings } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
   const location = useLocation();
+  const { getTranslation } = useLanguage();
   
   // Check for dark mode preference in localStorage on component mount
   useEffect(() => {
@@ -42,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                   <Home size={22} className={`${isActive('/') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs font-medium">Home</span>
+                <span className="text-xs font-medium">{getTranslation('home')}</span>
               </Link>
               
               <Link 
@@ -52,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                   <Book size={22} className={`${isActive('/quran') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs font-medium">Quran</span>
+                <span className="text-xs font-medium">{getTranslation('quran')}</span>
               </Link>
               
               <Link 
@@ -62,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                   <Compass size={22} className={`${isActive('/qibla') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs font-medium">Qibla</span>
+                <span className="text-xs font-medium">{getTranslation('qibla')}</span>
               </Link>
               
               <Link 
@@ -72,7 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                   <Moon size={22} className={`${isActive('/duas') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs font-medium">Duas</span>
+                <span className="text-xs font-medium">{getTranslation('duas')}</span>
               </Link>
               
               <Link 
@@ -82,7 +84,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
                   <Settings size={22} className={`${isActive('/settings') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs font-medium">Settings</span>
+                <span className="text-xs font-medium">{getTranslation('settings')}</span>
               </Link>
             </div>
           </div>

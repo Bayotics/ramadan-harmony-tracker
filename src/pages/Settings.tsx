@@ -1,23 +1,21 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import { Moon, Sun, Bell, Globe, Heart } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage, LanguageType } from '../contexts/LanguageContext';
 
 const Settings = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [is24HourFormat, setIs24HourFormat] = useState(false);
-  const [language, setLanguage] = useState('en');
+  const { language, setLanguage, getTranslation } = useLanguage();
   
   useEffect(() => {
     const darkModeSetting = localStorage.getItem('darkMode') === 'true';
     const hourFormatSetting = localStorage.getItem('24HourFormat') === 'true';
-    const languageSetting = localStorage.getItem('language') || 'en';
     
     setIsDarkMode(darkModeSetting);
     setIs24HourFormat(hourFormatSetting);
-    setLanguage(languageSetting);
   }, []);
   
   const toggleDarkMode = () => {
@@ -28,10 +26,10 @@ const Settings = () => {
     
     if (newDarkModeState) {
       document.documentElement.classList.add('dark');
-      toast.success('Dark mode enabled');
+      toast.success(getTranslation('dark_mode'));
     } else {
       document.documentElement.classList.remove('dark');
-      toast.success('Light mode enabled');
+      toast.success(getTranslation('light_mode'));
     }
   };
   
@@ -39,13 +37,12 @@ const Settings = () => {
     const newFormatState = !is24HourFormat;
     setIs24HourFormat(newFormatState);
     localStorage.setItem('24HourFormat', String(newFormatState));
-    toast.success(`${newFormatState ? '24-hour' : '12-hour'} format enabled`);
+    toast.success(newFormatState ? getTranslation('hour_format_24') : getTranslation('hour_format_12'));
   };
   
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLanguage = e.target.value;
+    const newLanguage = e.target.value as LanguageType;
     setLanguage(newLanguage);
-    localStorage.setItem('language', newLanguage);
     toast.success(`Language changed to ${getLanguageName(newLanguage)}`);
   };
   
@@ -63,7 +60,7 @@ const Settings = () => {
   return (
     <Layout>
       <div className="page-container">
-        <Header title="Settings" />
+        <Header title={getTranslation('settings')} />
         
         <div className="settings-sections space-y-8">
           <div className="setting-group glass-card rounded-xl p-5 dark:bg-gray-800/90 dark:border-gray-700">
@@ -181,7 +178,7 @@ const Settings = () => {
             
             <div className="space-y-4">
               <p className="text-sm dark:text-gray-300">
-                If you find this app helpful and would like to support its development, please consider making a donation. Your donation helps provide meals for those fasting and improves this app for the global Muslim community. Join us in spreading kindness and making prayer times more accessible.
+                {getTranslation('donation_text')}
               </p>
               
               <a 
@@ -200,7 +197,7 @@ const Settings = () => {
               Ramadan Timekeeper v1.0
             </p>
             <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
-              Made with love for the Ummah by Tahirah Shobaloju
+              {getTranslation('made_with_love')}
             </p>
           </div>
         </div>

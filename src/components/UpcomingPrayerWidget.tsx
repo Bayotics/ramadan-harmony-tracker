@@ -1,65 +1,107 @@
+import React, { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getPrayerTimes } from '../utils/prayerTimes';
+import { useLocation } from 'react-router-dom';
 
-import React, { useState, useEffect } from 'react';
-import { getNextPrayer, getTimeRemaining, formatAmPmTime } from '../utils/prayerTimes';
+const UpcomingPrayerWidget = () => {
+  const [nextPrayer, setNextPrayer] = useState<string | null>(null);
+  const [nextPrayerTime, setNextPrayerTime] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const { getTranslation } = useLanguage();
+  const location = useLocation();
 
-const UpcomingPrayerWidget: React.FC = () => {
-  const [nextPrayer, setNextPrayer] = useState(getNextPrayer());
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  
+  const calculateTimeRemaining = (targetTime: Date) => {
+    const now = new Date();
+    const difference = targetTime.getTime() - now.getTime();
+
+    if (difference > 0) {
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      return `${hours}h ${minutes}m`;
+    } else {
+      return 'Prayer time!';
+    }
+  };
+
   useEffect(() => {
-    const updateCountdown = () => {
-      if (nextPrayer) {
-        const { hours: h, minutes: m, seconds: s } = getTimeRemaining(nextPrayer.time);
-        setHours(h);
-        setMinutes(m);
-        setSeconds(s);
+    const updatePrayerTimes = () => {
+      const prayerTimes = getPrayerTimes();
+      if (prayerTimes) {
+        const now = new Date();
+        let nextPrayerName: string | null = null;
+        let nextPrayerDateTime: Date | null = null;
+
+        if (now < prayerTimes.fajr) {
+          nextPrayerName = 'Fajr';
+          nextPrayerDateTime = prayerTimes.fajr;
+        } else if (now < prayerTimes.sunrise) {
+          nextPrayerName = 'Sunrise';
+          nextPrayerDateTime = prayerTimes.sunrise;
+        } else if (now < prayerTimes.dhuhr) {
+          nextPrayerName = 'Dhuhr';
+          nextPrayerDateTime = prayerTimes.dhuhr;
+        } else if (now < prayerTimes.asr) {
+          nextPrayerName = 'Asr';
+          nextPrayerDateTime = prayerTimes.asr;
+        } else if (now < prayerTimes.maghrib) {
+          nextPrayerName = 'Maghrib';
+          nextPrayerDateTime = prayerTimes.maghrib;
+        } else if (now < prayerTimes.isha) {
+          nextPrayerName = 'Isha';
+          nextPrayerDateTime = prayerTimes.isha;
+        } else {
+          // If Isha has passed, set next prayer to Fajr of the next day
+          const tomorrow = new Date(now);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0); // Reset time to midnight
+          const tomorrowPrayerTimes = getPrayerTimes(tomorrow);
+          if (tomorrowPrayerTimes) {
+            nextPrayerName = 'Fajr';
+            nextPrayerDateTime = tomorrowPrayerTimes.fajr;
+          }
+        }
+
+        if (nextPrayerName && nextPrayerDateTime) {
+          setNextPrayer(nextPrayerName);
+          setNextPrayerTime(nextPrayerDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          setTimeRemaining(calculateTimeRemaining(nextPrayerDateTime));
+        } else {
+          setNextPrayer(null);
+          setNextPrayerTime(null);
+          setTimeRemaining('');
+        }
       }
     };
-    
-    // Initial update
-    updateCountdown();
-    
-    // Update every second
-    const interval = setInterval(() => {
-      updateCountdown();
-      
-      // Also check if we need to update the next prayer (every minute)
-      if (seconds === 0) {
-        setNextPrayer(getNextPrayer());
-      }
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [nextPrayer, seconds]);
-  
-  if (!nextPrayer) return null;
-  
-  const formattedTime = formatAmPmTime(nextPrayer.time);
-  
+
+    updatePrayerTimes();
+    const intervalId = setInterval(updatePrayerTimes, 60000); // Update every minute
+
+    return () => clearInterval(intervalId);
+  }, [location]);
+
   return (
-    <div className="upcoming-prayer-widget rounded-xl overflow-hidden shadow-lg transform transition-all hover:scale-[1.01] hover:shadow-xl">
-      <div className="widget-content bg-gradient-to-br from-islamic-darkBlue via-islamic-blue/90 to-islamic-darkBlue text-white p-5 text-center relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-20"></div>
+    <div className="upcoming-prayer-widget glass-card rounded-xl overflow-hidden border border-islamic-gold/30 shadow-lg">
+      <div className="bg-gradient-to-r from-islamic-blue/90 to-islamic-green/90 p-4 text-white">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-lg flex items-center">
+            <Clock size={18} className="mr-2 text-islamic-gold" />
+            {getTranslation('up_next')}
+          </h3>
+          {nextPrayer && (
+            <span className="text-islamic-gold font-bold">{nextPrayer}</span>
+          )}
+        </div>
         
-        <div className="relative z-10">
-          <h2 className="text-xl font-medium mb-1 text-islamic-cream/90">Upcoming Prayer</h2>
-          <h3 className="text-2xl font-bold mb-4 text-islamic-cream">{nextPrayer.name}</h3>
-          
-          <div className="countdown-section p-3 rounded-xl bg-white/10 backdrop-blur-sm mb-4">
-            <div className="countdown-timer text-5xl font-bold tracking-wider mb-1 text-islamic-gold">
-              {hours.toString().padStart(2, '0')}:
-              {minutes.toString().padStart(2, '0')}:
-              {seconds.toString().padStart(2, '0')}
-            </div>
-            
-            <div className="text-sm text-islamic-cream/80">Remaining Time</div>
-          </div>
-          
-          <div className="prayer-time text-xl text-islamic-lightBlue">
-            {formattedTime}
-          </div>
+        <div className="mt-2 flex justify-between items-end">
+          {nextPrayerTime && (
+            <span className="text-xl font-bold">{nextPrayerTime}</span>
+          )}
+          {timeRemaining && (
+            <span className="text-islamic-cream/90 text-sm">
+              {timeRemaining}
+            </span>
+          )}
         </div>
       </div>
     </div>
