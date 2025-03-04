@@ -133,7 +133,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const [currentSurahNumber, setCurrentSurahNumber] = useState(1);
   const [currentView, setCurrentView] = useState<'page' | 'display' | 'audio'>('page');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentVerse, setCurrentVerse] = useState<number | null>(null);
+  const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [loading, setLoading] = useState(false);
@@ -168,6 +168,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       setIsPlaying(false);
       setProgress(0);
       setCurrentTime(0);
+      handleNextVerse();
     });
     
     return () => {
@@ -179,6 +180,24 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       }
     };
   }, []);
+  
+  useEffect(() => {
+    if (duration > 0 && currentSurah && currentSurah.verses.length > 0) {
+      const averageVerseDuration = duration / currentSurah.verses.length;
+      
+      if (currentTime > 0) {
+        const estimatedVerseIndex = Math.min(
+          Math.floor(currentTime / averageVerseDuration),
+          currentSurah.verses.length - 1
+        );
+        setCurrentVerseIndex(estimatedVerseIndex);
+      }
+    }
+  }, [currentTime, duration, currentSurah]);
+  
+  useEffect(() => {
+    setCurrentVerseIndex(0);
+  }, [currentSurahNumber]);
   
   useEffect(() => {
     if (currentView === 'audio') {
@@ -254,6 +273,29 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       setIsPlaying(false);
       setProgress(0);
       setCurrentTime(0);
+    }
+  };
+  
+  const handleNextVerse = () => {
+    if (currentSurah && currentSurah.verses.length > 0) {
+      const nextVerseIndex = (currentVerseIndex + 1) % currentSurah.verses.length;
+      setCurrentVerseIndex(nextVerseIndex);
+      
+      if (nextVerseIndex === 0 && currentVerseIndex === currentSurah.verses.length - 1) {
+        navigateToNextSurah();
+      }
+    }
+  };
+  
+  const handlePrevVerse = () => {
+    if (currentSurah && currentSurah.verses.length > 0) {
+      if (currentVerseIndex === 0) {
+        if (currentSurahNumber > 1) {
+          navigateToPrevSurah();
+        }
+      } else {
+        setCurrentVerseIndex(currentVerseIndex - 1);
+      }
     }
   };
   
@@ -344,7 +386,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     }
     
     if (currentView === 'display') {
-      const firstVerse = currentSurah.verses[0] || { 
+      const currentVerse = currentSurah.verses[currentVerseIndex] || { 
         id: 1, 
         arabic: "", 
         translation: "Loading...", 
@@ -352,25 +394,45 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       };
       
       return (
-        <div className="display-view flex-1 flex items-center justify-center p-4">
-          <div className="text-center">
+        <div className="display-view flex-1 flex flex-col items-center justify-center p-4">
+          <div className="text-center w-full">
             <div dir="rtl" className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 font-arabic leading-relaxed">
-              {firstVerse.arabic}
+              {currentVerse.arabic}
             </div>
             
             <div className="transliteration text-lg text-green-600 dark:text-green-400 mb-4">
-              {firstVerse.transliteration || ''}
+              {currentVerse.transliteration || ''}
             </div>
             
             <div className="translation text-gray-700 dark:text-gray-300">
-              {firstVerse.translation}
+              {currentVerse.translation}
             </div>
             
-            <div className="pagination mt-8 flex justify-center gap-2">
-              {currentSurah.verses.slice(0, 10).map((verse, index) => (
+            <div className="verse-navigation flex justify-center items-center mt-6 gap-4">
+              <button 
+                onClick={handlePrevVerse} 
+                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                aria-label="Previous verse"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div className="text-sm text-gray-500">
+                Verse {currentVerseIndex + 1} of {currentSurah.verses.length}
+              </div>
+              <button 
+                onClick={handleNextVerse} 
+                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                aria-label="Next verse"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+            
+            <div className="pagination mt-4 flex justify-center gap-2">
+              {currentSurah.verses.slice(0, Math.min(10, currentSurah.verses.length)).map((verse, index) => (
                 <div 
                   key={verse.id}
-                  className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                  className={`w-2 h-2 rounded-full ${index === currentVerseIndex ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
                 />
               ))}
               {currentSurah.verses.length > 10 && (
@@ -408,6 +470,18 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Recited by Sheikh Mishari Rashid Al-Afasy
           </p>
+          
+          {isPlaying && (
+            <div className="mt-4 max-w-xs w-full bg-white/90 dark:bg-gray-800/90 rounded-lg p-3 shadow-md">
+              <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+                Now Reciting:
+              </p>
+              <div dir="rtl" className="text-center arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
+                {currentSurah.verses[currentVerseIndex]?.arabic}
+              </div>
+            </div>
+          )}
+          
           <div className="mt-8 w-full max-w-xs">
             <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div 
