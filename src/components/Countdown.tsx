@@ -18,25 +18,58 @@ const Countdown: React.FC<CountdownProps> = ({ type }) => {
     
     const updateCountdown = () => {
       const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
       
-      const [targetHour, targetMinute] = targetTime.split(':').map(Number);
-      
-      let diffHours = targetHour - currentHour;
-      let diffMinutes = targetMinute - currentMinute;
-      
-      if (diffMinutes < 0) {
-        diffMinutes += 60;
-        diffHours -= 1;
+      // For Suhoor, we need to handle it differently since it's for "time until end"
+      if (type === 'suhoor') {
+        // If current time is after Suhoor (e.g., during day), countdown to next day's Suhoor
+        const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // Convert everything to minutes for easier comparison
+        const currentTimeInMinutes = currentHour * 60 + currentMinute;
+        const targetTimeInMinutes = targetHour * 60 + targetMinute;
+        
+        // Calculate the difference in minutes
+        let diffInMinutes;
+        
+        if (currentTimeInMinutes > targetTimeInMinutes) {
+          // If current time is past target time, count to next day
+          diffInMinutes = 24 * 60 - currentTimeInMinutes + targetTimeInMinutes;
+        } else {
+          // If current time is before target time, count to today's target
+          diffInMinutes = targetTimeInMinutes - currentTimeInMinutes;
+        }
+        
+        // Convert back to hours and minutes
+        setHours(Math.floor(diffInMinutes / 60));
+        setMinutes(diffInMinutes % 60);
+      } 
+      // For Iftar, similar logic
+      else {
+        const [targetHour, targetMinute] = targetTime.split(':').map(Number);
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // Convert everything to minutes for easier comparison
+        const currentTimeInMinutes = currentHour * 60 + currentMinute;
+        const targetTimeInMinutes = targetHour * 60 + targetMinute;
+        
+        // Calculate the difference in minutes
+        let diffInMinutes;
+        
+        if (currentTimeInMinutes > targetTimeInMinutes) {
+          // If current time is past target time, count to next day
+          diffInMinutes = 24 * 60 - currentTimeInMinutes + targetTimeInMinutes;
+        } else {
+          // If current time is before target time, count to today's target
+          diffInMinutes = targetTimeInMinutes - currentTimeInMinutes;
+        }
+        
+        // Convert back to hours and minutes
+        setHours(Math.floor(diffInMinutes / 60));
+        setMinutes(diffInMinutes % 60);
       }
-      
-      if (diffHours < 0) {
-        diffHours += 24; // Add 24 hours if target is tomorrow
-      }
-      
-      setHours(diffHours);
-      setMinutes(diffMinutes);
     };
     
     // Initial update
