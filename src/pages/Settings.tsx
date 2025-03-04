@@ -8,13 +8,16 @@ import { toast } from 'sonner';
 const Settings = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [is24HourFormat, setIs24HourFormat] = useState(false);
+  const [language, setLanguage] = useState('en');
   
   useEffect(() => {
     const darkModeSetting = localStorage.getItem('darkMode') === 'true';
     const hourFormatSetting = localStorage.getItem('24HourFormat') === 'true';
+    const languageSetting = localStorage.getItem('language') || 'en';
     
     setIsDarkMode(darkModeSetting);
     setIs24HourFormat(hourFormatSetting);
+    setLanguage(languageSetting);
   }, []);
   
   const toggleDarkMode = () => {
@@ -37,6 +40,24 @@ const Settings = () => {
     setIs24HourFormat(newFormatState);
     localStorage.setItem('24HourFormat', String(newFormatState));
     toast.success(`${newFormatState ? '24-hour' : '12-hour'} format enabled`);
+  };
+  
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLanguage = e.target.value;
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+    toast.success(`Language changed to ${getLanguageName(newLanguage)}`);
+  };
+  
+  const getLanguageName = (code: string): string => {
+    const languages: Record<string, string> = {
+      'en': 'English',
+      'ar': 'العربية (Arabic)',
+      'fr': 'Français (French)',
+      'ur': 'اردو (Urdu)',
+      'id': 'Bahasa Indonesia'
+    };
+    return languages[code] || 'Unknown';
   };
   
   return (
@@ -137,7 +158,11 @@ const Settings = () => {
             <div className="space-y-4">
               <div>
                 <p className="font-medium mb-2">Select Language</p>
-                <select className="w-full p-2 rounded-lg border border-border dark:border-gray-700 bg-background dark:bg-gray-700">
+                <select 
+                  className="w-full p-2 rounded-lg border border-border dark:border-gray-700 bg-background dark:bg-gray-700"
+                  value={language}
+                  onChange={handleLanguageChange}
+                >
                   <option value="en">English</option>
                   <option value="ar">العربية (Arabic)</option>
                   <option value="fr">Français (French)</option>

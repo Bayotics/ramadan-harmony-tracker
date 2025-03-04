@@ -39,21 +39,25 @@ const UpcomingPrayerWidget: React.FC = () => {
   const formattedTime = formatAmPmTime(nextPrayer.time);
   
   return (
-    <div className="upcoming-prayer-widget rounded-xl overflow-hidden">
-      <div className="widget-content bg-gradient-to-br from-gray-900 to-blue-950 text-white p-5 text-center relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-10"></div>
+    <div className="upcoming-prayer-widget rounded-xl overflow-hidden shadow-lg transform transition-all hover:scale-[1.01] hover:shadow-xl">
+      <div className="widget-content bg-gradient-to-br from-islamic-darkBlue via-islamic-blue/90 to-islamic-darkBlue text-white p-5 text-center relative">
+        <div className="absolute top-0 left-0 w-full h-full bg-pattern opacity-20"></div>
         
         <div className="relative z-10">
-          <h2 className="text-xl font-medium mb-1">Upcoming Prayer</h2>
-          <h3 className="text-2xl font-bold mb-4">{nextPrayer.name}</h3>
+          <h2 className="text-xl font-medium mb-1 text-islamic-cream/90">Upcoming Prayer</h2>
+          <h3 className="text-2xl font-bold mb-4 text-islamic-cream">{nextPrayer.name}</h3>
           
-          <div className="countdown-timer text-5xl font-bold tracking-wider mb-3">
-            {hours.toString().padStart(2, '0')}:
-            {minutes.toString().padStart(2, '0')}:
-            {seconds.toString().padStart(2, '0')}
+          <div className="countdown-section p-3 rounded-xl bg-white/10 backdrop-blur-sm mb-4">
+            <div className="countdown-timer text-5xl font-bold tracking-wider mb-1 text-islamic-gold">
+              {hours.toString().padStart(2, '0')}:
+              {minutes.toString().padStart(2, '0')}:
+              {seconds.toString().padStart(2, '0')}
+            </div>
+            
+            <div className="text-sm text-islamic-cream/80">Remaining Time</div>
           </div>
           
-          <div className="prayer-time text-xl">
+          <div className="prayer-time text-xl text-islamic-lightBlue">
             {formattedTime}
           </div>
         </div>

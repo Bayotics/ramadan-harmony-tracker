@@ -37,52 +37,52 @@ const Layout: React.FC<LayoutProps> = ({ children, hideHeader = false }) => {
             <div className="flex justify-around items-center py-3">
               <Link 
                 to="/" 
-                className={`nav-item flex flex-col items-center ${isActive('/') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
+                className={`nav-item flex flex-col items-center transition-all duration-200 ${isActive('/') ? 'text-islamic-blue dark:text-islamic-lightBlue scale-110' : 'text-foreground dark:text-gray-300'}`}
               >
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
-                  <Home size={22} />
+                  <Home size={22} className={`${isActive('/') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs">Home</span>
+                <span className="text-xs font-medium">Home</span>
               </Link>
               
               <Link 
                 to="/quran" 
-                className={`nav-item flex flex-col items-center ${isActive('/quran') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
+                className={`nav-item flex flex-col items-center transition-all duration-200 ${isActive('/quran') ? 'text-islamic-blue dark:text-islamic-lightBlue scale-110' : 'text-foreground dark:text-gray-300'}`}
               >
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/quran') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
-                  <Book size={22} />
+                  <Book size={22} className={`${isActive('/quran') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs">Quran</span>
+                <span className="text-xs font-medium">Quran</span>
               </Link>
               
               <Link 
                 to="/qibla" 
-                className={`nav-item flex flex-col items-center ${isActive('/qibla') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
+                className={`nav-item flex flex-col items-center transition-all duration-200 ${isActive('/qibla') ? 'text-islamic-blue dark:text-islamic-lightBlue scale-110' : 'text-foreground dark:text-gray-300'}`}
               >
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/qibla') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
-                  <Compass size={22} />
+                  <Compass size={22} className={`${isActive('/qibla') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs">Qibla</span>
+                <span className="text-xs font-medium">Qibla</span>
               </Link>
               
               <Link 
                 to="/duas" 
-                className={`nav-item flex flex-col items-center ${isActive('/duas') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
+                className={`nav-item flex flex-col items-center transition-all duration-200 ${isActive('/duas') ? 'text-islamic-blue dark:text-islamic-lightBlue scale-110' : 'text-foreground dark:text-gray-300'}`}
               >
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/duas') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
-                  <Moon size={22} />
+                  <Moon size={22} className={`${isActive('/duas') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs">Duas</span>
+                <span className="text-xs font-medium">Duas</span>
               </Link>
               
               <Link 
                 to="/settings" 
-                className={`nav-item flex flex-col items-center ${isActive('/settings') ? 'text-islamic-blue dark:text-islamic-lightBlue' : 'text-foreground dark:text-gray-300'}`}
+                className={`nav-item flex flex-col items-center transition-all duration-200 ${isActive('/settings') ? 'text-islamic-blue dark:text-islamic-lightBlue scale-110' : 'text-foreground dark:text-gray-300'}`}
               >
                 <div className={`p-1.5 rounded-full mb-1 ${isActive('/settings') ? 'bg-islamic-blue/10 dark:bg-islamic-blue/20' : ''}`}>
-                  <Settings size={22} />
+                  <Settings size={22} className={`${isActive('/settings') ? 'stroke-[2.5px]' : ''}`} />
                 </div>
-                <span className="text-xs">Settings</span>
+                <span className="text-xs font-medium">Settings</span>
               </Link>
             </div>
           </div>
