@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -140,6 +140,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [lastProgressUpdate, setLastProgressUpdate] = useState(0);
+  const timeoutRef = useRef<number | null>(null);
   
   const { data: allSurahs, isLoading: isLoadingSurahs, error: surahsError } = useQuery({
     queryKey: ['surahs'],
@@ -178,22 +180,41 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
         audioElement.removeEventListener('loadedmetadata', () => {});
         audioElement.removeEventListener('ended', () => {});
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
   
   useEffect(() => {
-    if (duration > 0 && currentSurah && currentSurah.verses.length > 0) {
-      const averageVerseDuration = duration / currentSurah.verses.length;
+    if (currentSurah && currentSurah.verses.length > 0 && isPlaying) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       
-      if (currentTime > 0) {
-        const estimatedVerseIndex = Math.min(
-          Math.floor(currentTime / averageVerseDuration),
-          currentSurah.verses.length - 1
+      const totalVerses = currentSurah.verses.length;
+      
+      if (progress > 0 && duration > 0) {
+        const calculatedVerseIndex = Math.min(
+          Math.floor((progress / 100) * totalVerses),
+          totalVerses - 1
         );
-        setCurrentVerseIndex(estimatedVerseIndex);
+        
+        if (calculatedVerseIndex !== currentVerseIndex) {
+          setCurrentVerseIndex(calculatedVerseIndex);
+        }
+        
+        const averageTimePerVerse = duration / totalVerses;
+        
+        timeoutRef.current = window.setTimeout(() => {
+          const nextVerseIndex = (currentVerseIndex + 1) % totalVerses;
+          if (nextVerseIndex !== currentVerseIndex && isPlaying) {
+            setCurrentVerseIndex(nextVerseIndex);
+          }
+        }, averageTimePerVerse * 1000);
       }
     }
-  }, [currentTime, duration, currentSurah]);
+  }, [currentTime, progress, isPlaying, currentSurah]);
   
   useEffect(() => {
     setCurrentVerseIndex(0);
@@ -213,6 +234,21 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       const percentage = (audio.currentTime / audio.duration) * 100;
       setProgress(percentage);
       setCurrentTime(audio.currentTime);
+      
+      if (Math.abs(percentage - lastProgressUpdate) > 1) {
+        setLastProgressUpdate(percentage);
+        
+        if (currentSurah && currentSurah.verses.length > 0) {
+          const estimatedVerseIndex = Math.min(
+            Math.floor((percentage / 100) * currentSurah.verses.length),
+            currentSurah.verses.length - 1
+          );
+          
+          if (estimatedVerseIndex !== currentVerseIndex) {
+            setCurrentVerseIndex(estimatedVerseIndex);
+          }
+        }
+      }
     }
   };
   
@@ -445,6 +481,13 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     }
     
     if (currentView === 'audio') {
+      const currentVerse = currentSurah.verses[currentVerseIndex] || { 
+        id: 1, 
+        arabic: "", 
+        translation: "Loading...", 
+        transliteration: "" 
+      };
+      
       return (
         <div className="audio-view flex-1 flex flex-col items-center justify-center p-4">
           <div className="w-32 h-32 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6">
@@ -477,7 +520,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
                 Now Reciting:
               </p>
               <div dir="rtl" className="text-center arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
-                {currentSurah.verses[currentVerseIndex]?.arabic}
+                {currentVerse.arabic}
+              </div>
+              <div className="text-center text-xs text-emerald-500 mt-1">
+                Verse {currentVerseIndex + 1} of {currentSurah.verses.length}
               </div>
             </div>
           )}
@@ -494,6 +540,25 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
               <span>{formatTime(duration)}</span>
             </div>
           </div>
+          
+          {isPlaying && (
+            <div className="mt-4 flex space-x-2">
+              <button 
+                onClick={handlePrevVerse}
+                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                aria-label="Previous verse"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button 
+                onClick={handleNextVerse}
+                className="p-2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                aria-label="Next verse"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
         </div>
       );
     }
