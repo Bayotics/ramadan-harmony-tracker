@@ -18,22 +18,24 @@ const Quran = () => {
   return (
     <Layout hideHeader>
       <div className="quran-page-container relative h-full bg-gradient-to-b from-emerald-400 via-emerald-300 to-blue-500 dark:from-emerald-900 dark:via-emerald-800 dark:to-blue-900 min-h-screen pt-4 pb-20">
-        <style jsx>{`
-          @keyframes pulse-gentle {
-            0% {
-              opacity: 1;
+        <style>
+          {`
+            @keyframes pulse-gentle {
+              0% {
+                opacity: 1;
+              }
+              50% {
+                opacity: 0.85;
+              }
+              100% {
+                opacity: 1;
+              }
             }
-            50% {
-              opacity: 0.85;
+            .animate-pulse-gentle {
+              animation: pulse-gentle 2s infinite ease-in-out;
             }
-            100% {
-              opacity: 1;
-            }
-          }
-          .animate-pulse-gentle {
-            animation: pulse-gentle 2s infinite ease-in-out;
-          }
-        `}</style>
+          `}
+        </style>
         <div className="max-w-md mx-auto bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden relative h-[calc(100vh-2rem)]">
           <div className="quran-reader-container h-full overflow-y-auto">
             <QueryClientProvider client={queryClient}>
