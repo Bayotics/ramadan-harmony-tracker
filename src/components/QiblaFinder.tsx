@@ -153,10 +153,10 @@ const QiblaFinder: React.FC = () => {
     <div className="qibla-finder flex flex-col items-center justify-center py-4 animate-fade-in">
       {isCalibrating ? (
         <div className="text-center mb-6">
-          <div className="inline-block animate-spin-slow text-islamic-blue mb-2">
+          <div className="inline-block animate-spin-slow text-purple-600 mb-2">
             <Compass size={60} strokeWidth={1.5} />
           </div>
-          <p className="text-lg font-medium bg-gradient-to-r from-islamic-blue to-islamic-darkBlue bg-clip-text text-transparent">
+          <p className="text-lg font-medium bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
             {getTranslation("Calibrating compass...")}
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -174,7 +174,7 @@ const QiblaFinder: React.FC = () => {
           </p>
           <button 
             onClick={requestPermission}
-            className="px-4 py-2 bg-islamic-blue text-white rounded-full hover:bg-islamic-darkBlue transition-all"
+            className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all"
           >
             {getTranslation("Grant Permission")}
           </button>
@@ -182,31 +182,31 @@ const QiblaFinder: React.FC = () => {
       ) : (
         <>
           <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500 hover:scale-105">
-            {/* Compass outer ring with golden border */}
-            <div className="absolute inset-0 rounded-full border-4 border-islamic-gold/30 bg-gradient-to-br from-white to-islamic-cream shadow-lg backdrop-blur-sm overflow-hidden">
+            {/* Compass outer ring with modern border */}
+            <div className="absolute inset-0 rounded-full border-4 border-purple-300/40 bg-gradient-to-br from-white to-purple-50 shadow-lg backdrop-blur-sm overflow-hidden">
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
               
               {/* Cardinal directions with enhanced styling */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
-                <Star size={16} className="mb-1 text-islamic-gold" />
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-purple-900 flex flex-col items-center">
+                <Star size={16} className="mb-1 text-purple-400" />
                 <span>{getTranslation("N")}</span>
               </div>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-purple-900 flex items-center">
                 <span>{getTranslation("E")}</span>
-                <Star size={16} className="ml-1 text-islamic-gold" />
+                <Star size={16} className="ml-1 text-purple-400" />
               </div>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-purple-900 flex flex-col items-center">
                 <span>{getTranslation("S")}</span>
-                <Star size={16} className="mt-1 text-islamic-gold" />
+                <Star size={16} className="mt-1 text-purple-400" />
               </div>
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
-                <Star size={16} className="mr-1 text-islamic-gold" />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-purple-900 flex items-center">
+                <Star size={16} className="mr-1 text-purple-400" />
                 <span>{getTranslation("W")}</span>
               </div>
               
               {/* Inner circle with enhanced gradient */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-islamic-blue/20 bg-gradient-to-br from-white/90 to-islamic-cream/80"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-purple-300/20 bg-gradient-to-br from-white/90 to-purple-50/80"></div>
               
               {/* Subtle inner shadow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full shadow-inner opacity-20"></div>
@@ -217,10 +217,10 @@ const QiblaFinder: React.FC = () => {
                   key={i} 
                   className={`absolute ${
                     i % 9 === 0 
-                      ? 'h-5 w-1 bg-islamic-blue/80' 
+                      ? 'h-5 w-1 bg-purple-500/80' 
                       : i % 3 === 0 
-                        ? 'h-3 w-0.5 bg-islamic-blue/60' 
-                        : 'h-2 w-0.5 bg-islamic-blue/30'
+                        ? 'h-3 w-0.5 bg-purple-400/60' 
+                        : 'h-2 w-0.5 bg-purple-300/30'
                   }`}
                   style={{
                     top: '8px',
@@ -233,8 +233,8 @@ const QiblaFinder: React.FC = () => {
               
               {/* Current heading indicator */}
               <div className="absolute top-16 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                <div className="w-1 h-10 bg-islamic-blue/60"></div>
-                <div className="mt-1 px-3 py-1 rounded-full bg-islamic-blue text-white text-xs font-medium">
+                <div className="w-1 h-10 bg-purple-600/60"></div>
+                <div className="mt-1 px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium">
                   {Math.round(compassHeading)}°
                 </div>
               </div>
@@ -248,42 +248,42 @@ const QiblaFinder: React.FC = () => {
               {/* Needle design */}
               <div className="relative h-64 w-4 flex flex-col items-center">
                 {/* North pointing needle */}
-                <div className="w-2 h-[7rem] bg-gradient-to-t from-islamic-blue via-islamic-lightBlue to-white rounded-t-full shadow-lg"></div>
+                <div className="w-2 h-[7rem] bg-gradient-to-t from-purple-600 via-purple-400 to-white rounded-t-full shadow-lg"></div>
                 
                 {/* South pointing needle */}
-                <div className="w-2 h-[7rem] bg-gradient-to-b from-islamic-gold via-islamic-gold to-islamic-sand rounded-b-full shadow-lg"></div>
+                <div className="w-2 h-[7rem] bg-gradient-to-b from-indigo-500 via-indigo-400 to-indigo-200 rounded-b-full shadow-lg"></div>
                 
                 {/* Kaaba indicator with enhanced animation and styling */}
                 <div className="absolute -top-9 left-1/2 -translate-x-1/2 flex flex-col items-center animate-float">
-                  <div className="w-12 h-12 bg-gradient-to-br from-islamic-darkBlue to-islamic-blue rounded-full flex items-center justify-center shadow-lg shadow-islamic-blue/30 glow-gold">
-                    <div className="w-8 h-8 bg-gradient-to-br from-white/90 to-islamic-cream rounded-full flex items-center justify-center">
-                      <div className="w-5 h-5 bg-gradient-to-r from-islamic-gold to-yellow-400 rounded-full animate-pulse-gentle"></div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-900 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 glow-gold">
+                    <div className="w-8 h-8 bg-gradient-to-br from-white/90 to-purple-50 rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-gradient-to-r from-purple-400 to-violet-300 rounded-full animate-pulse-gentle"></div>
                     </div>
                   </div>
-                  <div className="mt-1 text-xs font-semibold bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent">
+                  <div className="mt-1 text-xs font-semibold bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent">
                     {getTranslation("Kaaba")}
                   </div>
                 </div>
                 
                 {/* Center pivot with more dimension */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-white to-islamic-cream border-2 border-islamic-gold/40 shadow-lg"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-islamic-gold/20 shadow-inner"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-white to-purple-50 border-2 border-purple-300/40 shadow-lg"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-purple-300/20 shadow-inner"></div>
               </div>
             </div>
           </div>
           
           {qiblaAngle !== null && (
-            <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-islamic-cream/90 shadow-lg border border-islamic-gold/30 w-80">
-              <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent flex items-center justify-center">
-                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-islamic-blue`} />
+            <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-purple-50/90 shadow-lg border border-purple-300/30 w-80">
+              <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-purple-800 to-indigo-600 bg-clip-text text-transparent flex items-center justify-center">
+                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-purple-600`} />
                 {getTranslation("Qibla Direction")}: {Math.round(qiblaAngle)}°
               </p>
-              <p className="text-sm text-islamic-darkBlue/80 mb-2">
+              <p className="text-sm text-purple-900/80 mb-2">
                 {getTranslation("Direction")}: {directionLabel()}
               </p>
               {userLocation && (
                 <p className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-islamic-blue`} />
+                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-purple-600`} />
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
               )}
@@ -291,7 +291,7 @@ const QiblaFinder: React.FC = () => {
               {needsCalibration && (
                 <button 
                   onClick={calibrateCompass}
-                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-islamic-blue bg-islamic-blue/10 px-3 py-1.5 rounded-full hover:bg-islamic-blue/20 transition-all mx-auto`}
+                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-purple-700 bg-purple-500/10 px-3 py-1.5 rounded-full hover:bg-purple-500/20 transition-all mx-auto`}
                 >
                   <RotateCw size={12} className={isRTL ? 'ml-1' : 'mr-1'} />
                   <span>{getTranslation("Calibrate Compass")}</span>
