@@ -128,6 +128,7 @@ export const useQiblaCompass = () => {
     return "";
   };
   
+  const directionLabel = getDirectionLabel();
   const compassRotation = qiblaAngle !== null ? qiblaAngle - compassHeading : 0;
   
   return {
@@ -138,7 +139,7 @@ export const useQiblaCompass = () => {
     needsCalibration,
     permissionDenied,
     compassRotation,
-    directionLabel: getDirectionLabel(),
+    directionLabel,
     requestPermission,
     calibrateCompass
   };
