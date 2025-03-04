@@ -3,7 +3,6 @@ import React from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import PrayerTimes from '../components/PrayerTimes';
-import Countdown from '../components/Countdown';
 import HomeWidget from '../components/HomeWidget';
 import DailyDua from '../components/DailyDua';
 import UpcomingPrayerWidget from '../components/UpcomingPrayerWidget';
@@ -32,11 +31,6 @@ const Index = () => {
             
             <div className="mb-6">
               <UpcomingPrayerWidget />
-            </div>
-            
-            <div className="ramadan-times-grid grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Countdown type="suhoor" />
-              <Countdown type="iftar" />
             </div>
           </div>
           
