@@ -34,7 +34,7 @@ const QiblaFinder: React.FC = () => {
       />
       
       {!isCalibrating && !permissionDenied && (
-        <div className="flex flex-col items-center max-w-lg w-full mx-auto backdrop-blur-sm bg-gradient-to-b from-gray-800/40 to-indigo-950/50 p-6 rounded-2xl border border-indigo-600/20 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.4)]">
+        <div className="flex flex-col items-center max-w-lg w-full mx-auto bg-white p-6 rounded-2xl border border-green-500/20 shadow-lg">
           <QiblaHeader qiblaAngle={qiblaAngle} />
 
           <div className="py-6 relative">
@@ -42,9 +42,6 @@ const QiblaFinder: React.FC = () => {
               compassHeading={compassHeading} 
               compassRotation={compassRotation} 
             />
-            
-            {/* Subtle radial glow under compass */}
-            <div className="absolute inset-0 bg-indigo-500/5 rounded-full blur-3xl -z-10"></div>
           </div>
 
           <LocationInfo 
