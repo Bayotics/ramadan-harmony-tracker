@@ -45,7 +45,7 @@ const Qibla = () => {
               <h3 className="font-semibold mb-3 text-lg bg-gradient-to-r from-purple-800 to-indigo-700 bg-clip-text text-transparent">
                 {getTranslation("How to use the Qibla Finder")}
               </h3>
-              <ol className="list-decimal pl-5 rtl:pr-5 rtl:pl-0 space-y-3 text-sm">
+              <ol className="list-decimal pl-5 rtl:pr-5 rtl:pl-0 space-y-3 text-sm bg-purple-700/10 p-4 rounded-lg">
                 <li className="text-gray-700 dark:text-gray-300">
                   {getTranslation(
                     "Hold your device flat with the screen facing up, away from electronic devices or metal objects"
@@ -70,7 +70,7 @@ const Qibla = () => {
             </div>
           </div>
 
-          <div className="mt-5 p-5 rounded-lg text-center border border-purple-300/20 bg-gradient-to-r from-purple-100/30 to-indigo-100/30">
+          <div className="mt-5 p-5 rounded-lg text-center border border-purple-300/20 bg-gradient-to-r from-purple-200/40 to-indigo-200/40">
             <div className="flex items-center justify-center mb-2">
               <MapPin size={16} className={`${isRTL ? 'ml-1 mr-0' : 'mr-1'} text-purple-600`} />
               <span className="text-sm font-medium text-purple-900">
@@ -85,7 +85,7 @@ const Qibla = () => {
           </div>
           
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <div className="bg-purple-500/10 px-4 py-2 rounded-full text-sm text-purple-700 flex items-center">
+            <div className="bg-purple-600/15 px-4 py-2 rounded-full text-sm text-purple-800 flex items-center">
               <Navigation size={14} className={`${isRTL ? 'ml-1.5 mr-0' : 'mr-1.5'}`} />
               <span>
                 {getTranslation(
@@ -94,7 +94,7 @@ const Qibla = () => {
               </span>
             </div>
             
-            <div className="bg-indigo-500/10 px-4 py-2 rounded-full text-sm text-indigo-700 flex items-center">
+            <div className="bg-indigo-600/15 px-4 py-2 rounded-full text-sm text-indigo-800 flex items-center">
               <GlobeIcon size={14} className={`${isRTL ? 'ml-1.5 mr-0' : 'mr-1.5'}`} />
               <span>
                 {getTranslation(
@@ -103,7 +103,7 @@ const Qibla = () => {
               </span>
             </div>
             
-            <div className="bg-violet-500/10 px-4 py-2 rounded-full text-sm text-violet-700 flex items-center">
+            <div className="bg-violet-600/15 px-4 py-2 rounded-full text-sm text-violet-800 flex items-center">
               <History size={14} className={`${isRTL ? 'ml-1.5 mr-0' : 'mr-1.5'}`} />
               <span>
                 {getTranslation(
