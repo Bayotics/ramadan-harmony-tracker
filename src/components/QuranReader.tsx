@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -93,8 +92,9 @@ const fetchSurahDetails = async (surahNumber: number): Promise<Surah> => {
       throw new Error(`Failed to fetch surah ${surahNumber} details`);
     }
     
-    // Get the Arabic text
-    const arabicResponse = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
+    // Get the Arabic text using a reliable endpoint that provides proper Unicode
+    // Using quran-uthmani endpoint for better Arabic text rendering
+    const arabicResponse = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`);
     const arabicData = await arabicResponse.json();
     
     if (arabicData.code !== 200) {
@@ -333,7 +333,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
         <div className="verses flex-1 overflow-y-auto px-4">
           {currentSurah.verses.map((verse) => (
             <div key={verse.id} className="verse mb-8">
-              <div className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100">
+              <div className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100 font-arabic">
                 {verse.arabic}
               </div>
               
@@ -367,7 +367,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       return (
         <div className="display-view flex-1 flex items-center justify-center p-4">
           <div className="text-center">
-            <div className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 leading-relaxed">
+            <div className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 font-arabic leading-relaxed">
               {firstVerse.arabic}
             </div>
             <div className="transliteration text-lg text-green-600 dark:text-green-400 mb-4">
