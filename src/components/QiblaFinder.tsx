@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { toast } from "../components/ui/use-toast";
 
 const QiblaFinder: React.FC = () => {
-  const { currentLanguage, getTranslation } = useLanguage();
+  const { language, getTranslation } = useLanguage();
   const [qiblaAngle, setQiblaAngle] = useState<number | null>(null);
   const [compassHeading, setCompassHeading] = useState<number>(0);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -42,11 +42,8 @@ const QiblaFinder: React.FC = () => {
         } else {
           setPermissionDenied(true);
           toast({
-            title: getTranslation("Permission Denied", "تم رفض الإذن"),
-            description: getTranslation(
-              "Please allow compass access for accurate Qibla direction", 
-              "يرجى السماح بالوصول إلى البوصلة للحصول على اتجاه القبلة الدقيق"
-            ),
+            title: getTranslation("Permission Denied"),
+            description: getTranslation("Please allow compass access for accurate Qibla direction"),
             variant: "destructive"
           });
         }
@@ -65,22 +62,16 @@ const QiblaFinder: React.FC = () => {
     setIsCalibrating(true);
     setNeedsCalibration(false);
     toast({
-      title: getTranslation("Calibrating Compass", "معايرة البوصلة"),
-      description: getTranslation(
-        "Move your device in a figure-8 pattern", 
-        "حرك جهازك في نمط الرقم 8"
-      ),
+      title: getTranslation("Calibrating Compass"),
+      description: getTranslation("Move your device in a figure-8 pattern"),
     });
     
     // Simulate calibration completion after 3 seconds
     setTimeout(() => {
       setIsCalibrating(false);
       toast({
-        title: getTranslation("Calibration Complete", "اكتملت المعايرة"),
-        description: getTranslation(
-          "Your compass is now calibrated", 
-          "تمت معايرة البوصلة الآن"
-        ),
+        title: getTranslation("Calibration Complete"),
+        description: getTranslation("Your compass is now calibrated"),
       });
     }, 3000);
   };
@@ -111,11 +102,8 @@ const QiblaFinder: React.FC = () => {
         console.error('Error initializing qibla finder:', error);
         setIsCalibrating(false);
         toast({
-          title: getTranslation("Error", "خطأ"),
-          description: getTranslation(
-            "Could not determine your location or Qibla direction", 
-            "تعذر تحديد موقعك أو اتجاه القبلة"
-          ),
+          title: getTranslation("Error"),
+          description: getTranslation("Could not determine your location or Qibla direction"),
           variant: "destructive"
         });
       }
@@ -147,17 +135,19 @@ const QiblaFinder: React.FC = () => {
     if (qiblaAngle === null) return "";
     const normalizedAngle = (qiblaAngle + 360) % 360;
     
-    if (normalizedAngle >= 337.5 || normalizedAngle < 22.5) return getTranslation("North", "شمال");
-    if (normalizedAngle >= 22.5 && normalizedAngle < 67.5) return getTranslation("Northeast", "شمال شرق");
-    if (normalizedAngle >= 67.5 && normalizedAngle < 112.5) return getTranslation("East", "شرق");
-    if (normalizedAngle >= 112.5 && normalizedAngle < 157.5) return getTranslation("Southeast", "جنوب شرق");
-    if (normalizedAngle >= 157.5 && normalizedAngle < 202.5) return getTranslation("South", "جنوب");
-    if (normalizedAngle >= 202.5 && normalizedAngle < 247.5) return getTranslation("Southwest", "جنوب غرب");
-    if (normalizedAngle >= 247.5 && normalizedAngle < 292.5) return getTranslation("West", "غرب");
-    if (normalizedAngle >= 292.5 && normalizedAngle < 337.5) return getTranslation("Northwest", "شمال غرب");
+    if (normalizedAngle >= 337.5 || normalizedAngle < 22.5) return getTranslation("North");
+    if (normalizedAngle >= 22.5 && normalizedAngle < 67.5) return getTranslation("Northeast");
+    if (normalizedAngle >= 67.5 && normalizedAngle < 112.5) return getTranslation("East");
+    if (normalizedAngle >= 112.5 && normalizedAngle < 157.5) return getTranslation("Southeast");
+    if (normalizedAngle >= 157.5 && normalizedAngle < 202.5) return getTranslation("South");
+    if (normalizedAngle >= 202.5 && normalizedAngle < 247.5) return getTranslation("Southwest");
+    if (normalizedAngle >= 247.5 && normalizedAngle < 292.5) return getTranslation("West");
+    if (normalizedAngle >= 292.5 && normalizedAngle < 337.5) return getTranslation("Northwest");
     
     return "";
   };
+  
+  const isRTL = language === 'ar';
   
   return (
     <div className="qibla-finder flex flex-col items-center justify-center py-4 animate-fade-in">
@@ -167,29 +157,26 @@ const QiblaFinder: React.FC = () => {
             <Compass size={60} strokeWidth={1.5} />
           </div>
           <p className="text-lg font-medium bg-gradient-to-r from-islamic-blue to-islamic-darkBlue bg-clip-text text-transparent">
-            {getTranslation("Calibrating compass...", "جاري معايرة البوصلة...")}
+            {getTranslation("Calibrating compass...")}
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {getTranslation("Please hold your device level", "يرجى إبقاء جهازك مستويًا")}
+            {getTranslation("Please hold your device level")}
           </p>
         </div>
       ) : permissionDenied ? (
         <div className="text-center mb-6 p-6 rounded-xl bg-red-50 border border-red-200">
           <AlertCircle size={60} className="mx-auto text-red-500 mb-4" />
           <h3 className="text-xl font-semibold text-red-800 mb-2">
-            {getTranslation("Compass Access Required", "مطلوب الوصول إلى البوصلة")}
+            {getTranslation("Compass Access Required")}
           </h3>
           <p className="text-gray-700 mb-4">
-            {getTranslation(
-              "Please allow access to your device's compass to find Qibla direction", 
-              "يرجى السماح بالوصول إلى بوصلة جهازك للعثور على اتجاه القبلة"
-            )}
+            {getTranslation("Please allow access to your device's compass to find Qibla direction")}
           </p>
           <button 
             onClick={requestPermission}
             className="px-4 py-2 bg-islamic-blue text-white rounded-full hover:bg-islamic-darkBlue transition-all"
           >
-            {getTranslation("Grant Permission", "منح الإذن")}
+            {getTranslation("Grant Permission")}
           </button>
         </div>
       ) : (
@@ -203,19 +190,19 @@ const QiblaFinder: React.FC = () => {
               {/* Cardinal directions with enhanced styling */}
               <div className="absolute top-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
                 <Star size={16} className="mb-1 text-islamic-gold" />
-                <span>{getTranslation("N", "ش")}</span>
+                <span>{getTranslation("N")}</span>
               </div>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
-                <span>{getTranslation("E", "ش")}</span>
+                <span>{getTranslation("E")}</span>
                 <Star size={16} className="ml-1 text-islamic-gold" />
               </div>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-bold text-lg text-islamic-darkBlue flex flex-col items-center">
-                <span>{getTranslation("S", "ج")}</span>
+                <span>{getTranslation("S")}</span>
                 <Star size={16} className="mt-1 text-islamic-gold" />
               </div>
               <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-islamic-darkBlue flex items-center">
                 <Star size={16} className="mr-1 text-islamic-gold" />
-                <span>{getTranslation("W", "غ")}</span>
+                <span>{getTranslation("W")}</span>
               </div>
               
               {/* Inner circle with enhanced gradient */}
@@ -274,7 +261,7 @@ const QiblaFinder: React.FC = () => {
                     </div>
                   </div>
                   <div className="mt-1 text-xs font-semibold bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent">
-                    {getTranslation("Kaaba", "الكعبة")}
+                    {getTranslation("Kaaba")}
                   </div>
                 </div>
                 
@@ -288,15 +275,15 @@ const QiblaFinder: React.FC = () => {
           {qiblaAngle !== null && (
             <div className="qibla-info glass-card rounded-2xl px-8 py-5 text-center bg-gradient-to-r from-white/90 to-islamic-cream/90 shadow-lg border border-islamic-gold/30 w-80">
               <p className="text-xl font-semibold mb-2 bg-gradient-to-r from-islamic-darkBlue to-islamic-blue bg-clip-text text-transparent flex items-center justify-center">
-                <Navigation size={18} className="mr-2 text-islamic-blue" />
-                {getTranslation("Qibla Direction", "اتجاه القبلة")}: {Math.round(qiblaAngle)}°
+                <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-islamic-blue`} />
+                {getTranslation("Qibla Direction")}: {Math.round(qiblaAngle)}°
               </p>
               <p className="text-sm text-islamic-darkBlue/80 mb-2">
-                {getTranslation("Direction", "الاتجاه")}: {directionLabel()}
+                {getTranslation("Direction")}: {directionLabel()}
               </p>
               {userLocation && (
                 <p className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-                  <MapPin size={14} className="mr-1 text-islamic-blue" />
+                  <MapPin size={14} className={`${isRTL ? 'ml-1' : 'mr-1'} text-islamic-blue`} />
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
               )}
@@ -304,10 +291,10 @@ const QiblaFinder: React.FC = () => {
               {needsCalibration && (
                 <button 
                   onClick={calibrateCompass}
-                  className="mt-3 flex items-center justify-center space-x-1 text-xs font-medium text-islamic-blue bg-islamic-blue/10 px-3 py-1.5 rounded-full hover:bg-islamic-blue/20 transition-all mx-auto"
+                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-islamic-blue bg-islamic-blue/10 px-3 py-1.5 rounded-full hover:bg-islamic-blue/20 transition-all mx-auto`}
                 >
-                  <RotateCw size={12} className="mr-1" />
-                  <span>{getTranslation("Calibrate Compass", "معايرة البوصلة")}</span>
+                  <RotateCw size={12} className={isRTL ? 'ml-1' : 'mr-1'} />
+                  <span>{getTranslation("Calibrate Compass")}</span>
                 </button>
               )}
             </div>
