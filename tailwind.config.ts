@@ -75,7 +75,9 @@ export default {
 					cream: '#FFF8E1',
 					darkBlue: '#1E3A8A',
 					green: '#34A853',
-					sand: '#F5DEB3'
+					sand: '#F5DEB3',
+					purple: '#9b87f5',
+					indigo: '#6366f1'
 				}
 			},
 			borderRadius: {
@@ -119,6 +121,10 @@ export default {
 				'spin-slow': {
 					from: { transform: 'rotate(0deg)' },
 					to: { transform: 'rotate(360deg)' }
+				},
+				'glow-pulse': {
+					'0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+					'50%': { opacity: '1', transform: 'scale(1.05)' }
 				}
 			},
 			animation: {
@@ -130,7 +136,8 @@ export default {
 				'slide-down': 'slide-down 0.5s ease-out',
 				'pulse-gentle': 'pulse-gentle 3s infinite ease-in-out',
 				'float': 'float 3s infinite ease-in-out',
-				'spin-slow': 'spin-slow 10s linear infinite'
+				'spin-slow': 'spin-slow 10s linear infinite',
+				'glow-pulse': 'glow-pulse 2s infinite ease-in-out'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

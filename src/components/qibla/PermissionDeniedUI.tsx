@@ -27,7 +27,7 @@ const PermissionDeniedUI: React.FC<PermissionDeniedUIProps> = ({ permissionDenie
       </p>
       <button 
         onClick={requestPermission}
-        className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-full hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-300 transform hover:scale-105 active:scale-95"
+        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-500 text-white rounded-full hover:shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300 transform hover:scale-105 active:scale-95"
       >
         {getTranslation("Grant Permission")}
       </button>
