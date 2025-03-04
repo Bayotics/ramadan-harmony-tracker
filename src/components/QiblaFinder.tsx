@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Compass, MapPin, Navigation, RotateCw, AlertCircle } from 'lucide-react';
 import { calculateQiblaDirection, getUserLocation } from '../utils/qiblaDirection';
@@ -16,25 +15,20 @@ const QiblaFinder: React.FC = () => {
   const isInitializedRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
   
-  // Function to handle device orientation
   const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
     if (event.alpha !== null) {
-      // Apply smoothing to reduce jumpiness
       setCompassHeading(prevHeading => {
-        // Simple low-pass filter for smoothing
-        const alpha = 0.2; // Adjust based on desired smoothing (0-1)
+        const alpha = 0.2;
         const newHeading = event.alpha!;
         return prevHeading * (1 - alpha) + newHeading * alpha;
       });
     }
   };
   
-  // Function to request device orientation permission
   const requestPermission = async () => {
     try {
       if (typeof DeviceOrientationEvent !== 'undefined' && 
           typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        // For iOS 13+
         const permission = await (DeviceOrientationEvent as any).requestPermission();
         if (permission === 'granted') {
           window.addEventListener('deviceorientation', handleDeviceOrientation, true);
@@ -48,7 +42,6 @@ const QiblaFinder: React.FC = () => {
           });
         }
       } else {
-        // For non-iOS devices or older iOS that don't require permission
         window.addEventListener('deviceorientation', handleDeviceOrientation, true);
       }
     } catch (error) {
@@ -57,7 +50,6 @@ const QiblaFinder: React.FC = () => {
     }
   };
   
-  // Function to calibrate compass
   const calibrateCompass = () => {
     setIsCalibrating(true);
     setNeedsCalibration(false);
@@ -66,7 +58,6 @@ const QiblaFinder: React.FC = () => {
       description: getTranslation("Move your device in a figure-8 pattern"),
     });
     
-    // Simulate calibration completion after 3 seconds
     setTimeout(() => {
       setIsCalibrating(false);
       toast({
@@ -76,25 +67,20 @@ const QiblaFinder: React.FC = () => {
     }, 3000);
   };
   
-  // Initialize Qibla finder
   useEffect(() => {
     if (isInitializedRef.current) return;
     isInitializedRef.current = true;
     
     const initQibla = async () => {
       try {
-        // Get user location
         const location = await getUserLocation();
         setUserLocation(location);
         
-        // Calculate Qibla direction
         const qibla = calculateQiblaDirection(location.latitude, location.longitude);
         setQiblaAngle(qibla);
         
-        // Request permission for device orientation
         await requestPermission();
         
-        // After a short delay, hide the calibration message
         setTimeout(() => {
           setIsCalibrating(false);
         }, 2000);
@@ -111,10 +97,8 @@ const QiblaFinder: React.FC = () => {
     
     initQibla();
     
-    // Detect if the device needs calibration after 10 seconds
     const calibrationCheckTimer = setTimeout(() => {
-      // This would ideally check actual sensor accuracy, for now just a simulated check
-      if (Math.random() < 0.3) { // 30% chance to need calibration - in real app this would be based on sensor data
+      if (Math.random() < 0.3) {
         setNeedsCalibration(true);
       }
     }, 10000);
@@ -128,7 +112,6 @@ const QiblaFinder: React.FC = () => {
     };
   }, []);
   
-  // Calculate the angle to rotate the compass needle
   const compassRotation = qiblaAngle !== null ? qiblaAngle - compassHeading : 0;
   
   const directionLabel = () => {
@@ -183,29 +166,19 @@ const QiblaFinder: React.FC = () => {
         <>
           <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500 
                           hover:scale-105 transform-gpu">
-            {/* Enhanced outer ring with glassmorphism effect */}
             <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 
                             bg-gradient-to-br from-gray-900 to-gray-800 shadow-[0_0_25px_rgba(139,92,246,0.2)] 
                             overflow-hidden backdrop-blur-lg">
-              {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
-              
-              {/* Glow effect around compass */}
               <div className="absolute inset-0 rounded-full shadow-[inset_0_0_15px_rgba(139,92,246,0.2)]"></div>
-              
-              {/* Numerical degree markers with enhanced visibility */}
               <div className="absolute top-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">0</div>
               <div className="absolute right-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">90</div>
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">180</div>
               <div className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">270</div>
-              
-              {/* 45-degree markers with enhanced visibility */}
               <div className="absolute top-[12%] right-[12%] text-sm font-bold text-purple-200">45</div>
               <div className="absolute bottom-[12%] right-[12%] text-sm font-bold text-purple-200">135</div>
               <div className="absolute bottom-[12%] left-[12%] text-sm font-bold text-purple-200">225</div>
               <div className="absolute top-[12%] left-[12%] text-sm font-bold text-purple-200">315</div>
-              
-              {/* Cardinal directions with enhanced styling */}
               <div className="absolute top-8 left-1/2 -translate-x-1/2 font-bold text-lg text-red-500 filter drop-shadow-md">
                 {getTranslation("N")}
               </div>
@@ -218,18 +191,12 @@ const QiblaFinder: React.FC = () => {
               <div className="absolute left-8 top-1/2 -translate-y-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
                 {getTranslation("W")}
               </div>
-              
-              {/* Inner circle with glassmorphism effect */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full
                               bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md
                               border border-purple-500/20 shadow-[inset_0_0_10px_rgba(139,92,246,0.15)]"></div>
-              
-              {/* Inner center circle with premium look */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full 
                               bg-gradient-to-br from-gray-700 to-gray-900 
                               border border-purple-500/40 z-20 shadow-[0_0_10px_rgba(139,92,246,0.3)]"></div>
-              
-              {/* Degree markings with enhanced visibility */}
               {Array.from({ length: 72 }).map((_, i) => (
                 <div 
                   key={i} 
@@ -248,12 +215,8 @@ const QiblaFinder: React.FC = () => {
                   }}
                 ></div>
               ))}
-              
-              {/* Cross lines with enhanced styling */}
               <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/30"></div>
               <div className="absolute top-0 left-1/2 h-full w-0.5 bg-indigo-500/30 -translate-x-1/2"></div>
-              
-              {/* Diagonal lines with enhanced styling */}
               <div className="absolute top-0 left-0 w-full h-full">
                 <div className="absolute top-0 left-0 w-full h-full" 
                      style={{ transform: 'rotate(45deg)' }}>
@@ -264,12 +227,8 @@ const QiblaFinder: React.FC = () => {
                   <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/20 -translate-y-1/2"></div>
                 </div>
               </div>
-              
-              {/* Subtle pulse effect */}
               <div className="absolute inset-0 rounded-full pulse-animation opacity-0"></div>
             </div>
-            
-            {/* Kaaba symbol at the top with enhanced styling */}
             <div 
               className="absolute z-30 transition-transform"
               style={{ 
@@ -285,32 +244,23 @@ const QiblaFinder: React.FC = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Improved Compass needles with better alignment and visual appeal */}
             <div 
               className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-20"
               style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
             >
-              {/* Needle design with perfect alignment and enhanced styling */}
               <div className="relative flex flex-col items-center">
-                {/* North pointing needle (red) with glow effect */}
                 <div className="absolute w-3 h-28 bg-gradient-to-t from-red-900 via-red-700 to-red-500 
                                 rounded-t-full -mt-28 left-1/2 -translate-x-1/2
                                 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-                
-                {/* South pointing needle (blue) with glow effect */}
                 <div className="absolute w-3 h-28 bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 
                                 rounded-b-full mt-0 left-1/2 -translate-x-1/2
                                 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                
-                {/* Premium center pivot with subtle glow */}
                 <div className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-gray-600/60 to-gray-800/60 
                                 backdrop-blur-md border-2 border-gray-400/40 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
                                 shadow-[0_0_8px_rgba(156,163,175,0.3)]"></div>
               </div>
             </div>
           </div>
-          
           {qiblaAngle !== null && (
             <div className="qibla-info rounded-2xl px-8 py-5 text-center 
                            bg-gradient-to-br from-gray-800/90 via-gray-800/80 to-gray-900/90 
@@ -329,7 +279,6 @@ const QiblaFinder: React.FC = () => {
                   {userLocation.latitude.toFixed(4)}°, {userLocation.longitude.toFixed(4)}°
                 </p>
               )}
-              
               {needsCalibration && (
                 <button 
                   onClick={calibrateCompass}
@@ -346,9 +295,8 @@ const QiblaFinder: React.FC = () => {
           )}
         </>
       )}
-
-      {/* Add the pulse animation keyframes */}
-      <style jsx>{`
+      
+      <style>{`
         @keyframes pulse-glow {
           0% {
             opacity: 0;
