@@ -1,11 +1,36 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Toaster } from './ui/sonner';
+import { useQuery } from '@tanstack/react-query';
 
-const surahsData = {
+interface Verse {
+  id: number;
+  arabic: string;
+  translation: string;
+  transliteration: string;
+  audio?: string;
+  number?: number;
+  numberInSurah?: number;
+}
+
+interface Surah {
+  number: number;
+  name: string;
+  arabicName: string;
+  translation: string;
+  location: string;
+  verses: Verse[];
+  englishName?: string;
+  englishNameTranslation?: string;
+  revelationType?: string;
+  numberOfAyahs?: number;
+}
+
+// Initial surah data for immediate rendering while API loads
+const initialSurahsData: Record<number, Surah> = {
   1: {
     name: "Al-Fatiha",
     arabicName: "الفاتحة",
@@ -18,83 +43,89 @@ const surahsData = {
         arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
         translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
         transliteration: "Bismillahir rahmanir raheem"
-      },
-      {
-        id: 2,
-        arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-        translation: "All praise is due to Allah, Lord of the worlds.",
-        transliteration: "Alhamdu lillahi rabbil 'alamin"
-      },
-      {
-        id: 3,
-        arabic: "الرَّحْمَٰنِ الرَّحِيمِ",
-        translation: "The Entirely Merciful, the Especially Merciful.",
-        transliteration: "Ar-rahmanir-raheem"
-      },
-      {
-        id: 4,
-        arabic: "مَالِكِ يَوْمِ الدِّينِ",
-        translation: "Sovereign of the Day of Recompense.",
-        transliteration: "Maliki yawmid-deen"
-      },
-      {
-        id: 5,
-        arabic: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
-        translation: "It is You we worship and You we ask for help.",
-        transliteration: "Iyyaka na'budu wa iyyaka nasta'een"
-      },
-      {
-        id: 6,
-        arabic: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
-        translation: "Guide us to the straight path.",
-        transliteration: "Ihdinas-siratal-mustaqeem"
-      },
-      {
-        id: 7,
-        arabic: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
-        translation: "The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.",
-        transliteration: "Siratal-latheena an'amta 'alayhim, ghayril-maghdubi 'alayhim wa lad-daalleen"
       }
     ]
-  },
-  2: {
-    name: "Al-Baqara",
-    arabicName: "البقرة",
-    number: 2,
-    translation: "The Cow",
-    location: "Medinan",
-    verses: [
-      {
-        id: 1,
-        arabic: "الم",
-        translation: "Alif, Lam, Meem.",
-        transliteration: "Alif Lam Meem"
-      },
-      {
-        id: 2,
-        arabic: "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ",
-        translation: "This is the Book about which there is no doubt, a guidance for those conscious of Allah.",
-        transliteration: "Thalika alkitabu la rayba feehi hudan lilmuttaqeen"
-      },
-      {
-        id: 3,
-        arabic: "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ",
-        translation: "Who believe in the unseen, establish prayer, and spend out of what We have provided for them.",
-        transliteration: "Allatheena yu/minoona bialghaybi wayuqeemoona alssalata wamimma razaqnahum yunfiqoon"
-      },
-      {
-        id: 19,
-        arabic: "أَوْ كَصَيِّبٍ مِّنَ السَّمَاءِ فِيهِ ظُلُمَاتٌ وَرَعْدٌ وَبَرْقٌ يَجْعَلُونَ أَصَابِعَهُمْ فِي آذَانِهِم مِّنَ الصَّوَاعِقِ حَذَرَ الْمَوْتِ ۚ وَاللَّهُ مُحِيطٌ بِالْكَافِرِينَ",
-        translation: "Or like a rainstorm from the sky, wherein is darkness, thunder and the flash of lightning. They thrust their fingers in their ears by reason of the thunder-claps, for fear of death. Allah encompasses the disbelievers (in His guidance, His omniscience and His omnipotence).",
-        transliteration: "Aw kasayyibin mina alssamai feehi thulumatun waraAAdun wabarqun yajAAaloona asabiAAahum fee athanihim mina alssawaAAiqi hathara almawti waAllahu muheetun bialkafireena"
-      },
-      {
-        id: 20,
-        arabic: "يَكَادُ الْبَرْقُ يَخْطَفُ أَبْصَارَهُمْ ۖ كُلَّمَا أَضَاءَ لَهُم مَّشَوْا فِيهِ وَإِذَا أَظْلَمَ عَلَيْهِمْ قَامُوا ۚ وَلَوْ شَاءَ اللَّهُ لَذَهَبَ بِسَمْعِهِمْ وَأَبْصَارِهِمْ ۚ إِنَّ اللَّهَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",
-        translation: "The lightning almost snatches away their sight; whenever it lights [the way] for them, they walk therein; but when darkness comes over them, they stand [still]. And if Allah had willed, He could have taken away their hearing and their sight. Indeed, Allah is over all things competent.",
-        transliteration: "Yakadu albarqu yakhtafu absarahum kullama adaa lahum mashaw feehi waitha athlama AAalayhim qamoo walaw shaa Allahu lathahaba bisamAAihim waabsarihim inna Allaha AAala kulli shayin qadeerun"
-      }
-    ]
+  }
+};
+
+// Fetch all surahs from the Quran API
+const fetchSurahs = async (): Promise<Record<number, Surah>> => {
+  try {
+    const response = await fetch('https://api.alquran.cloud/v1/surah');
+    const data = await response.json();
+    
+    if (data.code !== 200) {
+      throw new Error('Failed to fetch surahs');
+    }
+    
+    const surahs: Record<number, Surah> = {};
+    
+    for (const surah of data.data) {
+      surahs[surah.number] = {
+        number: surah.number,
+        name: surah.englishName,
+        arabicName: surah.name,
+        translation: surah.englishNameTranslation,
+        location: surah.revelationType,
+        verses: [],
+        englishName: surah.englishName,
+        englishNameTranslation: surah.englishNameTranslation,
+        revelationType: surah.revelationType,
+        numberOfAyahs: surah.numberOfAyahs
+      };
+    }
+    
+    return surahs;
+  } catch (error) {
+    console.error('Error fetching surahs:', error);
+    throw error;
+  }
+};
+
+// Fetch detailed surah data with verses
+const fetchSurahDetails = async (surahNumber: number): Promise<Surah> => {
+  try {
+    // Get the detailed surah data with verses
+    const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/en.asad`);
+    const data = await response.json();
+    
+    if (data.code !== 200) {
+      throw new Error(`Failed to fetch surah ${surahNumber} details`);
+    }
+    
+    // Get the Arabic text
+    const arabicResponse = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`);
+    const arabicData = await arabicResponse.json();
+    
+    if (arabicData.code !== 200) {
+      throw new Error(`Failed to fetch surah ${surahNumber} Arabic text`);
+    }
+    
+    const verses: Verse[] = data.data.ayahs.map((ayah: any, index: number) => ({
+      id: ayah.numberInSurah,
+      number: ayah.number,
+      numberInSurah: ayah.numberInSurah,
+      arabic: arabicData.data.ayahs[index].text,
+      translation: ayah.text,
+      transliteration: "", // API doesn't provide transliteration
+      audio: ayah.audio
+    }));
+    
+    return {
+      number: data.data.number,
+      name: data.data.englishName,
+      arabicName: data.data.name,
+      translation: data.data.englishNameTranslation,
+      location: data.data.revelationType,
+      verses,
+      englishName: data.data.englishName,
+      englishNameTranslation: data.data.englishNameTranslation,
+      revelationType: data.data.revelationType,
+      numberOfAyahs: data.data.numberOfAyahs
+    };
+  } catch (error) {
+    console.error(`Error fetching surah ${surahNumber} details:`, error);
+    throw error;
   }
 };
 
@@ -105,7 +136,7 @@ interface QuranReaderProps {
 
 const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const navigate = useNavigate();
-  const [currentSurah, setCurrentSurah] = useState(surahsData[1]);
+  const [currentSurahNumber, setCurrentSurahNumber] = useState(1);
   const [currentView, setCurrentView] = useState<'page' | 'display' | 'audio'>('page');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentVerse, setCurrentVerse] = useState<number | null>(null);
@@ -115,6 +146,25 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  
+  // Fetch all surahs
+  const { data: allSurahs, isLoading: isLoadingSurahs, error: surahsError } = useQuery({
+    queryKey: ['surahs'],
+    queryFn: fetchSurahs
+  });
+  
+  // Fetch current surah details
+  const { data: currentSurahData, isLoading: isLoadingSurahDetails, error: surahDetailsError } = useQuery({
+    queryKey: ['surah', currentSurahNumber],
+    queryFn: () => fetchSurahDetails(currentSurahNumber),
+    enabled: !!currentSurahNumber
+  });
+  
+  // Current surah - use API data if available, otherwise fall back to initial data
+  const currentSurah = currentSurahData || initialSurahsData[1];
+  
+  // Total number of surahs
+  const totalSurahs = allSurahs ? Object.keys(allSurahs).length : 114;
   
   useEffect(() => {
     const audioElement = new Audio();
@@ -147,7 +197,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       audio.pause();
       setIsPlaying(false);
     }
-  }, [currentView, currentSurah.number]);
+  }, [currentView, currentSurahNumber]);
   
   const updateProgress = () => {
     if (audio) {
@@ -169,7 +219,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       try {
         // Use the full Quran API endpoint to get the complete surah audio
         const edition = "ar.alafasy"; // Sheikh Mishari Rashid Al-Afasy recitation
-        const fullAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${currentSurah.number}.mp3`;
+        const fullAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${currentSurahNumber}.mp3`;
         
         setAudioSrc(fullAudioUrl);
         audio.src = fullAudioUrl;
@@ -197,8 +247,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   };
   
   const navigateToNextSurah = () => {
-    const nextSurahNumber = currentSurah.number === 2 ? 1 : 2;
-    setCurrentSurah(surahsData[nextSurahNumber as keyof typeof surahsData]);
+    const nextSurahNumber = currentSurahNumber < totalSurahs ? currentSurahNumber + 1 : 1;
+    setCurrentSurahNumber(nextSurahNumber);
     if (audio) {
       audio.pause();
       setIsPlaying(false);
@@ -208,8 +258,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   };
   
   const navigateToPrevSurah = () => {
-    const prevSurahNumber = currentSurah.number === 1 ? 2 : 1;
-    setCurrentSurah(surahsData[prevSurahNumber as keyof typeof surahsData]);
+    const prevSurahNumber = currentSurahNumber > 1 ? currentSurahNumber - 1 : totalSurahs;
+    setCurrentSurahNumber(prevSurahNumber);
     if (audio) {
       audio.pause();
       setIsPlaying(false);
@@ -249,6 +299,35 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   };
   
   const renderContent = () => {
+    // Show loading state while fetching surah details
+    if (isLoadingSurahDetails) {
+      return (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-emerald-500" />
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Loading surah...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    // Show error message if there was an error fetching the surah
+    if (surahDetailsError) {
+      return (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-red-500">
+            <p>Error loading surah. Please try again.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 px-4 py-2 bg-emerald-500 text-white rounded-md"
+            >
+              Reload
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
     if (currentView === 'page') {
       return (
         <div className="verses flex-1 overflow-y-auto px-4">
@@ -259,7 +338,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
               </div>
               
               <div className="transliteration text-green-600 dark:text-green-400 text-sm italic leading-relaxed mt-2 mb-1">
-                {verse.id}. {verse.transliteration}
+                {verse.id}. {verse.transliteration || ''}
               </div>
               
               <div className="translation text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
@@ -278,25 +357,35 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     }
     
     if (currentView === 'display') {
+      const firstVerse = currentSurah.verses[0] || { 
+        id: 1, 
+        arabic: "", 
+        translation: "Loading...", 
+        transliteration: "" 
+      };
+      
       return (
         <div className="display-view flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <div className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 leading-relaxed">
-              {currentSurah.verses[0].arabic}
+              {firstVerse.arabic}
             </div>
             <div className="transliteration text-lg text-green-600 dark:text-green-400 mb-4">
-              {currentSurah.verses[0].transliteration}
+              {firstVerse.transliteration || ''}
             </div>
             <div className="translation text-gray-700 dark:text-gray-300">
-              {currentSurah.verses[0].translation}
+              {firstVerse.translation}
             </div>
             <div className="pagination mt-8 flex justify-center gap-2">
-              {currentSurah.verses.map((verse, index) => (
+              {currentSurah.verses.slice(0, 10).map((verse, index) => (
                 <div 
                   key={verse.id}
                   className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
                 />
               ))}
+              {currentSurah.verses.length > 10 && (
+                <div className="text-xs text-gray-500 ml-1">+{currentSurah.verses.length - 10}</div>
+              )}
             </div>
           </div>
         </div>
@@ -363,11 +452,11 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
         <div className="flex-1">
           <div className="flex items-center">
             <h2 className="text-md font-semibold text-emerald-600 dark:text-emerald-400 flex items-center">
-              {currentSurah.name}
+              {isLoadingSurahs ? 'Loading...' : currentSurah.name}
             </h2>
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            {currentSurah.location}
+            {isLoadingSurahs ? '' : currentSurah.location}
           </div>
         </div>
         
@@ -376,6 +465,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
             onClick={navigateToPrevSurah}
             className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             aria-label="Previous surah"
+            disabled={isLoadingSurahs}
           >
             <ChevronLeft size={20} />
           </button>
@@ -383,6 +473,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
             onClick={navigateToNextSurah}
             className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             aria-label="Next surah"
+            disabled={isLoadingSurahs}
           >
             <ChevronRight size={20} />
           </button>
@@ -391,11 +482,15 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
       
       <div className="px-4 py-2 text-gray-600 dark:text-gray-300 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-gray-500 dark:text-gray-400">{currentSurah.number}. {currentSurah.name}</span>
-          <span className="text-gray-500 dark:text-gray-400">"{currentSurah.translation}"</span>
+          <span className="text-gray-500 dark:text-gray-400">
+            {isLoadingSurahs ? 'Loading...' : `${currentSurah.number}. ${currentSurah.name}`}
+          </span>
+          <span className="text-gray-500 dark:text-gray-400">
+            {isLoadingSurahs ? '' : `"${currentSurah.translation}"`}
+          </span>
         </div>
         <div className="text-right arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
-          {currentSurah.arabicName}
+          {isLoadingSurahs ? '' : currentSurah.arabicName}
         </div>
       </div>
       
