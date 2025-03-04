@@ -300,7 +300,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
           oscillator.frequency.linearRampToValueAtTime(vibratoValue, vibratoTime);
         }
         
-        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.01);
+        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.01, currentTime);
         gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.15, currentTime + segmentDuration * 0.2);
         gainNode.gain.setValueAtTime(isMuted ? 0 : 0.15, currentTime + segmentDuration * 0.7);
         gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.01, currentTime + segmentDuration);
@@ -337,7 +337,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       console.error("Failed to create enhanced synthesized audio:", synthError);
       toast({
         title: "Audio Error",
-        description: "Could not create demo audio. Please check your browser settings.",
+        description: "Could not create demo audio. Please try a different browser or check your audio settings.",
         variant: "destructive",
       });
       return false;
