@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -123,10 +123,103 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
+    console.log("Play/Pause toggled:", !isPlaying);
   };
   
   const toggleView = (view: 'page' | 'display' | 'audio') => {
     setCurrentView(view);
+    console.log("View changed to:", view);
+  };
+  
+  // Handle showing different content based on selected view
+  const renderContent = () => {
+    switch(currentView) {
+      case 'page':
+        return (
+          <div className="verses flex-1 overflow-y-auto px-4">
+            {currentSurah.verses.map((verse) => (
+              <div key={verse.id} className="verse mb-8">
+                <div className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100">
+                  {verse.arabic}
+                </div>
+                
+                <div className="transliteration text-green-600 dark:text-green-400 text-sm italic leading-relaxed mt-2 mb-1">
+                  {verse.id}. {verse.transliteration}
+                </div>
+                
+                <div className="translation text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                  {verse.id}. {verse.translation}
+                </div>
+                
+                {verse.id === 1 && (
+                  <div className="verse-controls flex justify-center mt-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      
+      case 'display':
+        return (
+          <div className="display-view flex-1 flex items-center justify-center p-4">
+            <div className="text-center">
+              <div className="arabic-text text-4xl mb-6 text-gray-800 dark:text-gray-100 leading-relaxed">
+                {currentSurah.verses[0].arabic}
+              </div>
+              <div className="transliteration text-lg text-green-600 dark:text-green-400 mb-4">
+                {currentSurah.verses[0].transliteration}
+              </div>
+              <div className="translation text-gray-700 dark:text-gray-300">
+                {currentSurah.verses[0].translation}
+              </div>
+              <div className="pagination mt-8 flex justify-center gap-2">
+                {currentSurah.verses.map((verse, index) => (
+                  <div 
+                    key={verse.id}
+                    className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'audio':
+        return (
+          <div className="audio-view flex-1 flex flex-col items-center justify-center p-4">
+            <div className="w-32 h-32 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6">
+              <div className="w-24 h-24 rounded-full bg-emerald-500/40 flex items-center justify-center">
+                <button 
+                  onClick={handlePlayPause}
+                  className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white"
+                >
+                  {isPlaying ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
+                </button>
+              </div>
+            </div>
+            <h3 className="text-xl font-semibold text-emerald-600 dark:text-emerald-400">
+              {currentSurah.name} ({currentSurah.translation})
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Recited by Sheikh Abd-ur Rahman As-Sudais
+            </p>
+            <div className="mt-8 w-full max-w-xs">
+              <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500" style={{ width: '35%' }}></div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>1:26</span>
+                <span>4:12</span>
+              </div>
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
   };
 
   return (
@@ -143,7 +236,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         <div className="flex-1">
           <div className="flex items-center">
             <h2 className="text-md font-semibold text-emerald-600 dark:text-emerald-400 flex items-center">
-              {currentSurah.name} <ChevronRight size={16} className="inline-block opacity-70" />
+              {currentSurah.name} <ChevronRight size={16} className="inline-block opacity-70 ml-1" />
             </h2>
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -163,30 +256,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         </div>
       </div>
       
-      {/* Verses */}
-      <div className="verses flex-1 overflow-y-auto px-4">
-        {currentSurah.verses.filter(verse => verse.id >= 19 && verse.id <= 20).map((verse) => (
-          <div key={verse.id} className="verse mb-8">
-            <div className="arabic-text text-right leading-loose text-2xl my-3 text-gray-800 dark:text-gray-100">
-              {verse.arabic}
-            </div>
-            
-            <div className="transliteration text-green-600 dark:text-green-400 text-sm italic leading-relaxed mt-2 mb-1">
-              {verse.id}. {verse.transliteration}
-            </div>
-            
-            <div className="translation text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {verse.id}. {verse.translation}
-            </div>
-            
-            {verse.id === 19 && (
-              <div className="verse-controls flex justify-center mt-3">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* Main content area - changes based on selected view */}
+      {renderContent()}
       
       {/* Bottom Navigation */}
       <div className="navigation-bar border-t border-gray-200 dark:border-gray-700 p-2 flex items-center justify-around">
@@ -219,23 +290,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
           {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           <span className="text-xs mt-1">Audio</span>
         </button>
-        
-        <div className="audio-controls flex items-center">
-          <button className="p-2 text-gray-500 dark:text-gray-400">
-            <ChevronLeft size={20} />
-          </button>
-          
-          <button
-            onClick={handlePlayPause}
-            className="p-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
-          >
-            {isPlaying ? <Pause size={22} /> : <Play size={22} />}
-          </button>
-          
-          <button className="p-2 text-gray-500 dark:text-gray-400">
-            <ChevronRight size={20} />
-          </button>
-        </div>
       </div>
     </div>
   );
