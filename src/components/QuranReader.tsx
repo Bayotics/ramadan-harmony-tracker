@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -168,6 +167,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   // Demo audio generation frequencies for different surahs
@@ -188,29 +189,45 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     5: 16,
   };
   
+  // Clean up any playing audio
+  const stopAudio = () => {
+    if (oscillatorRef.current) {
+      try {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+        oscillatorRef.current = null;
+      } catch (e) {
+        console.error("Error stopping oscillator:", e);
+      }
+    }
+    
+    if (audioContextRef.current) {
+      try {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      } catch (e) {
+        console.error("Error closing audio context:", e);
+      }
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+    
+    setIsPlaying(false);
+    setGlobalPlayback(false);
+  };
+  
   useEffect(() => {
     if (viewMode === 'listening') {
       toast({
         title: "Listening Mode Activated",
-        description: "Using demo recitation (synthesized audio)",
+        description: "You can now listen to Quran recitation (demo with synthesized audio)",
       });
-      
-      // Create audio element if it doesn't exist
-      if (!audioRef.current) {
-        const audio = new Audio();
-        audio.onended = () => {
-          setIsPlaying(false);
-          setGlobalPlayback(false);
-        };
-        audioRef.current = audio;
-      }
     } else {
-      // If we're switching away from listening mode, pause any playing audio
-      if (isPlaying && audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-        setGlobalPlayback(false);
-      }
+      // If we're switching away from listening mode, stop any playing audio
+      stopAudio();
       
       toast({
         title: "Reading Mode Activated",
@@ -220,15 +237,9 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     
     // Clean up on component unmount
     return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
+      stopAudio();
     };
-  }, [viewMode, isPlaying]);
+  }, [viewMode]);
   
   const handleBookmark = (verseId: number) => {
     if (bookmarkedVerses.includes(verseId)) {
@@ -249,10 +260,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   // Create synthesized audio using Web Audio API
   const createSynthesizedAudio = (frequency: number, duration: number, callback?: () => void) => {
     try {
-      // Close previous AudioContext if exists
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-      }
+      // Stop any existing audio
+      stopAudio();
       
       // Create a new AudioContext
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -267,44 +276,45 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const gainNode = audioContext.createGain();
       gainNode.gain.value = isMuted ? 0 : 0.2; // Lower volume to avoid startling the user
       gainNode.connect(audioContext.destination);
+      gainNodeRef.current = gainNode;
       
       // Create an oscillator for the tone
       const oscillator = audioContext.createOscillator();
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      oscillatorRef.current = oscillator;
       
       // Add some "rhythm" by periodically changing the gain
       const now = audioContext.currentTime;
       gainNode.gain.setValueAtTime(0, now);
       
-      // Create a "recitation" effect with changing amplitude
+      // Create a "recitation" effect with changing amplitude and frequency
       for (let i = 0; i < duration * 2; i++) {
         const time = now + (i * 0.5);
         const value = i % 2 === 0 ? 0.2 : 0.1;
         gainNode.gain.linearRampToValueAtTime(value, time);
         gainNode.gain.linearRampToValueAtTime(0.05, time + 0.25);
+        
+        // Slight frequency modulation for more realistic sound
+        const freqMod = i % 3 === 0 ? frequency * 1.02 : (i % 3 === 1 ? frequency * 0.98 : frequency);
+        oscillator.frequency.setValueAtTime(freqMod, time);
       }
       
       // Connect oscillator to gain node
       oscillator.connect(gainNode);
       
+      // Set callback for when audio finishes
+      oscillator.onended = () => {
+        setIsPlaying(false);
+        setGlobalPlayback(false);
+        if (callback) callback();
+      };
+      
       // Start and stop the oscillator
       oscillator.start();
       oscillator.stop(audioContext.currentTime + duration);
       
-      // Set callback for when audio finishes
-      oscillator.onended = () => {
-        if (callback) callback();
-      };
-      
-      // Return a stop function
-      return {
-        stop: () => {
-          oscillator.stop();
-          audioContext.close().catch(console.error);
-          audioContextRef.current = null;
-        }
-      };
+      return true;
     } catch (synthError) {
       console.error("Failed to create synthesized audio:", synthError);
       toast({
@@ -312,7 +322,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         description: "Could not create demo audio. Please check your browser settings.",
         variant: "destructive",
       });
-      return { stop: () => {} };
+      return false;
     }
   };
   
@@ -321,14 +331,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     
     // If already playing this verse, stop it
     if (isPlaying && currentVerseId === verseId) {
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-        audioContextRef.current = null;
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      setIsPlaying(false);
+      stopAudio();
       return;
     }
     
@@ -337,40 +340,23 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     // Shorter duration for individual verses
     const duration = (demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10) / 3;
     
-    // Stop any existing audio
-    if (audioContextRef.current) {
-      audioContextRef.current.close().catch(console.error);
-      audioContextRef.current = null;
-    }
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-    
     // Create synthesized audio
-    createSynthesizedAudio(frequency, duration, () => {
-      setIsPlaying(false);
-    });
+    const success = createSynthesizedAudio(frequency, duration);
     
-    setIsPlaying(true);
-    
-    toast({
-      title: "Demo Mode",
-      description: `Playing verse ${verseId} with synthesized audio`,
-    });
+    if (success) {
+      setIsPlaying(true);
+      
+      toast({
+        title: "Demo Mode",
+        description: `Playing verse ${verseId} with synthesized audio`,
+      });
+    }
   };
   
   const handleGlobalPlayback = () => {
     if (globalPlayback) {
       // Stop playback
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-        audioContextRef.current = null;
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      setIsPlaying(false);
-      setGlobalPlayback(false);
+      stopAudio();
       toast({
         title: "Playback Paused",
         description: "Quran recitation paused",
@@ -384,27 +370,17 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const frequency = demoAudioFrequencies[currentSurah.number as keyof typeof demoAudioFrequencies] || 440;
       const duration = demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10;
       
-      // Stop any existing audio
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-        audioContextRef.current = null;
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      
       // Create synthesized audio
-      createSynthesizedAudio(frequency, duration, () => {
-        setIsPlaying(false);
-        setGlobalPlayback(false);
-      });
+      const success = createSynthesizedAudio(frequency, duration);
       
-      setIsPlaying(true);
-      setGlobalPlayback(true);
-      toast({
-        title: "Playback Started",
-        description: `Now playing Surah ${currentSurah.name} with synthesized audio`,
-      });
+      if (success) {
+        setIsPlaying(true);
+        setGlobalPlayback(true);
+        toast({
+          title: "Playback Started",
+          description: `Now playing Surah ${currentSurah.name} with synthesized audio`,
+        });
+      }
     }
   };
   
@@ -412,10 +388,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     setIsMuted(!isMuted);
     
     // If we're using Web Audio API, update the gain
-    if (audioContextRef.current) {
-      const gainNode = audioContextRef.current.createGain();
-      gainNode.gain.value = isMuted ? 0.2 : 0; // Toggle volume
-      gainNode.connect(audioContextRef.current.destination);
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = isMuted ? 0.2 : 0; // Toggle volume
     }
     
     // If using audio element
@@ -434,16 +408,12 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     const surahData = surahsData[surah.number as keyof typeof surahsData];
     
     if (surahData) {
+      // Stop any playing audio
+      stopAudio();
+      
       setCurrentSurah(surahData);
       setShowSurahList(false);
       setCurrentVerseId(null);
-      setIsPlaying(false);
-      setGlobalPlayback(false);
-      
-      // If there's audio playing, stop it
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
       
       toast({
         title: "Surah changed",
@@ -507,27 +477,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         verseRefs.current[verseIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-    
-    // If we have active audio playback and change surah, update it
-    if (isPlaying) {
-      // Stop current audio
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(console.error);
-        audioContextRef.current = null;
-      }
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      
-      setIsPlaying(false);
-      setGlobalPlayback(false);
-    }
-  }, [currentSurah.verses, currentVerseId, currentSurah.number, isPlaying]);
-
+  }, [currentSurah.verses, currentVerseId]);
+  
   return (
     <div className="quran-reader animate-fade-in relative">
-      {/* No hidden audio element needed anymore since we're creating it dynamically */}
-      
       {/* Surah selection modal */}
       {showSurahList && (
         <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
