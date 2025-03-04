@@ -98,17 +98,22 @@ const surahsData = {
 
 interface QuranReaderProps {
   viewMode: 'reading' | 'listening';
+  onBackClick?: () => void;
 }
 
-const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
+const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const navigate = useNavigate();
-  const [currentSurah, setCurrentSurah] = useState(surahsData[2]);
+  const [currentSurah, setCurrentSurah] = useState(surahsData[1]);
   const [currentView, setCurrentView] = useState<'page' | 'display' | 'audio'>('page');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentVerse, setCurrentVerse] = useState<number | null>(null);
   
   const handleGoBack = () => {
-    navigate('/');
+    if (onBackClick) {
+      onBackClick();
+    } else {
+      navigate('/');
+    }
   };
   
   const navigateToNextSurah = () => {
@@ -229,6 +234,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         <button 
           onClick={handleGoBack}
           className="mr-3 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+          aria-label="Go back"
         >
           <ChevronLeft size={24} />
         </button>
@@ -236,20 +242,37 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         <div className="flex-1">
           <div className="flex items-center">
             <h2 className="text-md font-semibold text-emerald-600 dark:text-emerald-400 flex items-center">
-              {currentSurah.name} <ChevronRight size={16} className="inline-block opacity-70 ml-1" />
+              {currentSurah.name}
             </h2>
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             {currentSurah.location}
           </div>
         </div>
+        
+        <div className="flex space-x-2">
+          <button 
+            onClick={navigateToPrevSurah}
+            className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Previous surah"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button 
+            onClick={navigateToNextSurah}
+            className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Next surah"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
       </div>
       
       {/* Surah info */}
       <div className="px-4 py-2 text-gray-600 dark:text-gray-300 text-sm">
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500 dark:text-gray-400">{currentSurah.number}. {currentSurah.name}</span>
-          <span className="ml-1 text-gray-500 dark:text-gray-400">("{currentSurah.translation}")</span>
+          <span className="text-gray-500 dark:text-gray-400">"{currentSurah.translation}"</span>
         </div>
         <div className="text-right arabic-text mt-1 text-gray-800 dark:text-gray-200 text-lg">
           {currentSurah.arabicName}
