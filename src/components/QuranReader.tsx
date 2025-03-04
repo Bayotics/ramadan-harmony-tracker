@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, BookOpen, Play, Pause, FileText, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -166,28 +167,18 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
     if (audio) {
       setLoading(true);
       try {
-        const edition = "ar.alafasy";
-        const response = await fetch(`https://api.alquran.cloud/v1/surah/${currentSurah.number}/${edition}`);
-        const data = await response.json();
+        // Use the full Quran API endpoint to get the complete surah audio
+        const edition = "ar.alafasy"; // Sheikh Mishari Rashid Al-Afasy recitation
+        const fullAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${edition}/${currentSurah.number}.mp3`;
         
-        if (data.code === 200 && data.data && data.data.ayahs && data.data.ayahs.length > 0) {
-          if (data.data.audioUrl) {
-            setAudioSrc(data.data.audioUrl);
-            audio.src = data.data.audioUrl;
-          } else {
-            const audioUrl = data.data.ayahs[0].audio;
-            setAudioSrc(audioUrl);
-            audio.src = audioUrl;
-          }
-          
-          await audio.load();
-          setLoading(false);
-          
-          if (isPlaying) {
-            audio.play();
-          }
-        } else {
-          throw new Error("Failed to load audio");
+        setAudioSrc(fullAudioUrl);
+        audio.src = fullAudioUrl;
+        
+        audio.load();
+        setLoading(false);
+        
+        if (isPlaying) {
+          audio.play();
         }
       } catch (error) {
         console.error("Error loading Quran audio:", error);
@@ -208,11 +199,23 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode, onBackClick }) => {
   const navigateToNextSurah = () => {
     const nextSurahNumber = currentSurah.number === 2 ? 1 : 2;
     setCurrentSurah(surahsData[nextSurahNumber as keyof typeof surahsData]);
+    if (audio) {
+      audio.pause();
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime(0);
+    }
   };
   
   const navigateToPrevSurah = () => {
     const prevSurahNumber = currentSurah.number === 1 ? 2 : 1;
     setCurrentSurah(surahsData[prevSurahNumber as keyof typeof surahsData]);
+    if (audio) {
+      audio.pause();
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime(0);
+    }
   };
   
   const handlePlayPause = () => {
