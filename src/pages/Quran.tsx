@@ -14,7 +14,7 @@ const Quran = () => {
       setViewMode('listening');
       toast({
         title: "Listening mode activated",
-        description: "You can now listen to Quran recitation (demo with synthesized audio)",
+        description: "You can now listen to Quran recitation with enhanced audio simulation",
       });
     } else {
       toast({

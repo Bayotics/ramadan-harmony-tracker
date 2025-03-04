@@ -1,9 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Bookmark, PlayCircle, PauseCircle, Search, Settings, BookOpen, Music, List, Volume2, VolumeX } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
-// Mock surah data for different surahs
 const surahsData = {
   1: {
     name: "Al-Fatiha",
@@ -126,7 +124,6 @@ const surahsData = {
   }
 };
 
-// Mock list of surahs for navigation
 const mockSurahList = [
   { number: 1, name: "Al-Fatiha", arabicName: "الفاتحة", verses: 7 },
   { number: 2, name: "Al-Baqara", arabicName: "البقرة", verses: 286 },
@@ -137,7 +134,6 @@ const mockSurahList = [
   { number: 7, name: "Al-A'raf", arabicName: "الأعراف", verses: 206 },
 ];
 
-// Mock list of Qaris (reciters)
 const mockQariList = [
   { id: 1, name: "Abdul Basit Abdul Samad", style: "Murattal" },
   { id: 2, name: "Mishary Rashid Alafasy", style: "Murattal" },
@@ -167,37 +163,51 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const [globalPlayback, setGlobalPlayback] = useState(false);
   
   const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const oscillatorRefs = useRef<OscillatorNode[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
   const verseRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  // Demo audio generation frequencies for different surahs
-  const demoAudioFrequencies = {
-    1: 440, // A4 note
-    2: 493.88, // B4 note
-    3: 523.25, // C5 note
-    4: 587.33, // D5 note
-    5: 659.25, // E5 note
+  const demoAudioNotes = {
+    1: [329.63, 392.00, 440.00, 493.88],
+    2: [261.63, 293.66, 329.63, 349.23],
+    3: [293.66, 349.23, 392.00, 440.00],
+    4: [349.23, 392.00, 440.00, 493.88],
+    5: [261.63, 311.13, 349.23, 392.00],
   };
   
-  // Duration for each surah in seconds
   const demoAudioDurations = {
-    1: 12, // Al-Fatiha is shorter
+    1: 12,
     2: 20,
     3: 18,
     4: 15,
     5: 16,
   };
   
-  // Clean up any playing audio
   const stopAudio = () => {
-    if (oscillatorRef.current) {
+    if (oscillatorRefs.current.length > 0) {
       try {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
-        oscillatorRef.current = null;
+        oscillatorRefs.current.forEach(osc => {
+          if (osc && osc.stop) {
+            try {
+              osc.stop();
+              osc.disconnect();
+            } catch (e) {
+              console.error("Error stopping oscillator:", e);
+            }
+          }
+        });
+        oscillatorRefs.current = [];
       } catch (e) {
-        console.error("Error stopping oscillator:", e);
+        console.error("Error stopping oscillators:", e);
+      }
+    }
+    
+    if (gainNodeRef.current) {
+      try {
+        gainNodeRef.current.disconnect();
+        gainNodeRef.current = null;
+      } catch (e) {
+        console.error("Error disconnecting gain node:", e);
       }
     }
     
@@ -223,7 +233,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         description: "You can now listen to Quran recitation (demo with synthesized audio)",
       });
     } else {
-      // If we're switching away from listening mode, stop any playing audio
       stopAudio();
       
       toast({
@@ -232,7 +241,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       });
     }
     
-    // Clean up on component unmount
     return () => {
       stopAudio();
     };
@@ -254,13 +262,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     }
   };
   
-  // Create synthesized audio using Web Audio API
-  const createSynthesizedAudio = (frequency: number, duration: number, onEnd?: () => void) => {
+  const createEnhancedSynthesizedAudio = (surahNumber: number, duration: number, onEnd?: () => void) => {
     try {
-      // Stop any existing audio
       stopAudio();
       
-      // Create a new AudioContext
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) {
         throw new Error("AudioContext not supported");
@@ -269,52 +274,67 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
       
-      // Create a gain node for volume control
       const gainNode = audioContext.createGain();
-      gainNode.gain.value = isMuted ? 0 : 0.3; // Set initial volume
+      gainNode.gain.value = isMuted ? 0 : 0.15;
       gainNode.connect(audioContext.destination);
       gainNodeRef.current = gainNode;
       
-      // Create an oscillator for the tone
-      const oscillator = audioContext.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillatorRef.current = oscillator;
+      const notes = demoAudioNotes[surahNumber as keyof typeof demoAudioNotes] || demoAudioNotes[1];
       
-      // Add some "rhythm" by periodically changing the gain
       const now = audioContext.currentTime;
-      gainNode.gain.setValueAtTime(isMuted ? 0 : 0.3, now);
+      let currentTime = now;
+      const segmentDuration = duration / (notes.length * 2);
+      const noteSequence = [...notes, ...notes.reverse()];
       
-      // Create a "recitation" effect with changing amplitude and frequency
-      for (let i = 0; i < duration * 2; i++) {
-        const time = now + (i * 0.5);
-        const value = isMuted ? 0 : (i % 2 === 0 ? 0.3 : 0.15);
-        gainNode.gain.linearRampToValueAtTime(value, time);
-        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.05, time + 0.25);
+      noteSequence.forEach((frequency, index) => {
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = index % 2 === 0 ? 'sine' : 'triangle';
+        oscillator.frequency.setValueAtTime(frequency, currentTime);
         
-        // Slight frequency modulation for more realistic sound
-        const freqMod = i % 3 === 0 ? frequency * 1.02 : (i % 3 === 1 ? frequency * 0.98 : frequency);
-        oscillator.frequency.setValueAtTime(freqMod, time);
-      }
+        const vibratoAmount = 4 + (index % 3);
+        const vibratoSpeed = 5 + (index % 2);
+        
+        for (let i = 0; i < 10; i++) {
+          const vibratoTime = currentTime + (i * segmentDuration / 10);
+          const vibratoValue = frequency + (Math.sin(i * vibratoSpeed) * vibratoAmount);
+          oscillator.frequency.linearRampToValueAtTime(vibratoValue, vibratoTime);
+        }
+        
+        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.01);
+        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.15, currentTime + segmentDuration * 0.2);
+        gainNode.gain.setValueAtTime(isMuted ? 0 : 0.15, currentTime + segmentDuration * 0.7);
+        gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 0.01, currentTime + segmentDuration);
+        
+        oscillator.connect(gainNode);
+        
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + segmentDuration);
+        
+        oscillatorRefs.current.push(oscillator);
+        
+        currentTime += segmentDuration;
+      });
       
-      // Connect oscillator to gain node
-      oscillator.connect(gainNode);
+      const delayNode = audioContext.createDelay();
+      delayNode.delayTime.value = 0.2;
       
-      // Set callback for when audio finishes
+      const delayGain = audioContext.createGain();
+      delayGain.gain.value = 0.3;
+      
+      gainNode.connect(delayNode);
+      delayNode.connect(delayGain);
+      delayGain.connect(audioContext.destination);
+      
       if (onEnd) {
         setTimeout(() => {
           if (onEnd) onEnd();
         }, duration * 1000);
       }
       
-      // Start and stop the oscillator
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + duration);
-      
-      console.log("Audio playback started successfully");
+      console.log("Enhanced audio playback started successfully");
       return true;
     } catch (synthError) {
-      console.error("Failed to create synthesized audio:", synthError);
+      console.error("Failed to create enhanced synthesized audio:", synthError);
       toast({
         title: "Audio Error",
         description: "Could not create demo audio. Please check your browser settings.",
@@ -327,19 +347,15 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   const handlePlayAudio = (verseId: number) => {
     setCurrentVerseId(verseId);
     
-    // If already playing this verse, stop it
     if (isPlaying && currentVerseId === verseId) {
       stopAudio();
       return;
     }
     
-    // Get frequency for this surah
-    const frequency = demoAudioFrequencies[currentSurah.number as keyof typeof demoAudioFrequencies] || 440;
-    // Shorter duration for individual verses
-    const duration = (demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10) / 3;
+    const surahNumber = currentSurah.number;
+    const duration = (demoAudioDurations[surahNumber as keyof typeof demoAudioDurations] || 10) / 3;
     
-    // Create synthesized audio
-    const success = createSynthesizedAudio(frequency, duration, () => {
+    const success = createEnhancedSynthesizedAudio(surahNumber, duration, () => {
       setIsPlaying(false);
       setCurrentVerseId(null);
     });
@@ -356,23 +372,19 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   
   const handleGlobalPlayback = () => {
     if (globalPlayback) {
-      // Stop playback
       stopAudio();
       toast({
         title: "Playback Paused",
         description: "Quran recitation paused",
       });
     } else {
-      // Start playback from the first verse or current verse
       const firstVerseId = currentSurah.verses[0].id;
       setCurrentVerseId(firstVerseId);
       
-      // Get frequency and duration for this surah
-      const frequency = demoAudioFrequencies[currentSurah.number as keyof typeof demoAudioFrequencies] || 440;
-      const duration = demoAudioDurations[currentSurah.number as keyof typeof demoAudioDurations] || 10;
+      const surahNumber = currentSurah.number;
+      const duration = demoAudioDurations[surahNumber as keyof typeof demoAudioDurations] || 10;
       
-      // Create synthesized audio
-      const success = createSynthesizedAudio(frequency, duration, () => {
+      const success = createEnhancedSynthesizedAudio(surahNumber, duration, () => {
         setIsPlaying(false);
         setGlobalPlayback(false);
         setCurrentVerseId(null);
@@ -393,9 +405,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
     
-    // If we're using Web Audio API, update the gain
     if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = newMutedState ? 0 : 0.3;
+      gainNodeRef.current.gain.value = newMutedState ? 0 : 0.15;
     }
     
     toast({
@@ -405,11 +416,9 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   };
   
   const selectSurah = (surah: typeof mockSurahList[0]) => {
-    // Get the actual surah data from our mock data
     const surahData = surahsData[surah.number as keyof typeof surahsData];
     
     if (surahData) {
-      // Stop any playing audio
       stopAudio();
       
       setCurrentSurah(surahData);
@@ -468,10 +477,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   };
   
   useEffect(() => {
-    // Initialize verse refs array
     verseRefs.current = verseRefs.current.slice(0, currentSurah.verses.length);
     
-    // Scroll to verse if one is selected
     if (currentVerseId) {
       const verseIndex = currentSurah.verses.findIndex(verse => verse.id === currentVerseId);
       if (verseIndex !== -1 && verseRefs.current[verseIndex]) {
@@ -482,11 +489,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
   
   return (
     <div className="quran-reader animate-fade-in relative">
-      {/* Surah selection modal */}
       {showSurahList && (
         <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full max-h-[70vh] overflow-y-auto shadow-xl">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h3 className="text-lg font-semibold dark:text-white">Select Surah</h3>
               <button 
                 onClick={() => setShowSurahList(false)}
@@ -523,7 +529,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
               </div>
               
               <div className="text-center mb-4">
-                <div className="arabic-text text-2xl mb-2 text-islamic-darkBlue dark:text-white">
+                <div className="arabic-text text-2xl mb-2 text-islamic-blue dark:text-islamic-lightBlue">
                   {mockSurahList[currentSurahIndex].arabicName}
                 </div>
               </div>
@@ -567,7 +573,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         </div>
       )}
       
-      {/* Qari selection modal */}
       {showQariList && (
         <div className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full max-h-[70vh] overflow-y-auto shadow-xl">
@@ -619,7 +624,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         </div>
       )}
       
-      {/* Surah header card */}
       <div className="glass-card rounded-xl p-5 mb-6 border border-islamic-blue/20 bg-gradient-to-r from-white/90 to-islamic-cream/80 dark:from-gray-800/90 dark:to-gray-900/80 dark:border-islamic-blue/30 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <button
@@ -664,7 +668,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         )}
       </div>
       
-      {/* Reader controls */}
       <div className="reader-controls flex justify-between items-center mb-5 glass-card rounded-xl p-3 border border-islamic-blue/20 bg-white/90 dark:bg-gray-800/90 dark:border-gray-700 shadow-md">
         <button 
           onClick={() => setShowSurahList(true)}
@@ -715,7 +718,6 @@ const QuranReader: React.FC<QuranReaderProps> = ({ viewMode }) => {
         </div>
       </div>
       
-      {/* Verses */}
       <div className="verses space-y-6 px-1 py-2 mb-4">
         {currentSurah.verses.map((verse, index) => (
           <div 
