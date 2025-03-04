@@ -14,17 +14,20 @@ const PermissionDeniedUI: React.FC<PermissionDeniedUIProps> = ({ permissionDenie
   if (!permissionDenied) return null;
   
   return (
-    <div className="text-center mb-6 p-6 rounded-xl bg-gray-800/90 border border-red-500/30">
-      <AlertCircle size={60} className="mx-auto text-red-500 mb-4" />
-      <h3 className="text-xl font-semibold text-red-300 mb-2">
+    <div className="text-center mb-6 p-8 rounded-xl bg-gradient-to-b from-gray-800/90 to-gray-900/95 backdrop-blur-md border border-red-500/30 shadow-[0_10px_25px_-5px_rgba(220,38,38,0.2)]">
+      <div className="inline-block relative mb-4">
+        <div className="absolute inset-0 bg-red-500/20 rounded-full blur-xl"></div>
+        <AlertCircle size={70} className="relative text-red-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-red-300 mb-3 tracking-wide">
         {getTranslation("Compass Access Required")}
       </h3>
-      <p className="text-gray-300 mb-4">
+      <p className="text-gray-300 mb-6 max-w-sm mx-auto">
         {getTranslation("Please allow access to your device's compass to find Qibla direction")}
       </p>
       <button 
         onClick={requestPermission}
-        className="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all"
+        className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-full hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-300 transform hover:scale-105 active:scale-95"
       >
         {getTranslation("Grant Permission")}
       </button>
