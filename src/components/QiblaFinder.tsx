@@ -153,7 +153,7 @@ const QiblaFinder: React.FC = () => {
     <div className="qibla-finder flex flex-col items-center justify-center py-4 animate-fade-in">
       {isCalibrating ? (
         <div className="text-center mb-6">
-          <div className="inline-block animate-spin-slow text-purple-600 mb-2">
+          <div className="inline-block animate-spin-slow text-purple-400 mb-2">
             <Compass size={60} strokeWidth={1.5} />
           </div>
           <p className="text-lg font-medium text-gray-200">
@@ -181,57 +181,67 @@ const QiblaFinder: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500">
-            {/* Compass outer ring with modern border */}
-            <div className="absolute inset-0 rounded-full border-4 border-gray-500/40 bg-gray-800 shadow-lg overflow-hidden">
+          <div className="compass-container relative w-80 h-80 mb-8 transition-all duration-500 
+                          hover:scale-105 transform-gpu">
+            {/* Enhanced outer ring with glassmorphism effect */}
+            <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 
+                            bg-gradient-to-br from-gray-900 to-gray-800 shadow-[0_0_25px_rgba(139,92,246,0.2)] 
+                            overflow-hidden backdrop-blur-lg">
               {/* Decorative pattern */}
               <div className="absolute inset-0 opacity-10 bg-pattern-islamic"></div>
               
-              {/* Numerical degree markers */}
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 text-sm font-bold text-gray-300">0</div>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-300">90</div>
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-sm font-bold text-gray-300">180</div>
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-300">270</div>
+              {/* Glow effect around compass */}
+              <div className="absolute inset-0 rounded-full shadow-[inset_0_0_15px_rgba(139,92,246,0.2)]"></div>
               
-              {/* 45-degree markers */}
-              <div className="absolute top-[12%] right-[12%] text-sm font-bold text-gray-300">45</div>
-              <div className="absolute bottom-[12%] right-[12%] text-sm font-bold text-gray-300">135</div>
-              <div className="absolute bottom-[12%] left-[12%] text-sm font-bold text-gray-300">225</div>
-              <div className="absolute top-[12%] left-[12%] text-sm font-bold text-gray-300">315</div>
+              {/* Numerical degree markers with enhanced visibility */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">0</div>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">90</div>
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-sm font-bold text-purple-300">180</div>
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 text-sm font-bold text-purple-300">270</div>
               
-              {/* Cardinal directions */}
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 font-bold text-lg text-red-500">
+              {/* 45-degree markers with enhanced visibility */}
+              <div className="absolute top-[12%] right-[12%] text-sm font-bold text-purple-200">45</div>
+              <div className="absolute bottom-[12%] right-[12%] text-sm font-bold text-purple-200">135</div>
+              <div className="absolute bottom-[12%] left-[12%] text-sm font-bold text-purple-200">225</div>
+              <div className="absolute top-[12%] left-[12%] text-sm font-bold text-purple-200">315</div>
+              
+              {/* Cardinal directions with enhanced styling */}
+              <div className="absolute top-8 left-1/2 -translate-x-1/2 font-bold text-lg text-red-500 filter drop-shadow-md">
                 {getTranslation("N")}
               </div>
-              <div className="absolute right-8 top-1/2 -translate-y-1/2 font-bold text-lg text-gray-200">
+              <div className="absolute right-8 top-1/2 -translate-y-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
                 {getTranslation("E")}
               </div>
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-bold text-lg text-gray-200">
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
                 {getTranslation("S")}
               </div>
-              <div className="absolute left-8 top-1/2 -translate-y-1/2 font-bold text-lg text-gray-200">
+              <div className="absolute left-8 top-1/2 -translate-y-1/2 font-bold text-lg text-indigo-300 filter drop-shadow-md">
                 {getTranslation("W")}
               </div>
               
-              {/* Inner circle */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-gray-500/30 bg-gray-700/80"></div>
+              {/* Inner circle with glassmorphism effect */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full
+                              bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md
+                              border border-purple-500/20 shadow-[inset_0_0_10px_rgba(139,92,246,0.15)]"></div>
               
-              {/* Inner center circle */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 border border-gray-500/40 z-20"></div>
+              {/* Inner center circle with premium look */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full 
+                              bg-gradient-to-br from-gray-700 to-gray-900 
+                              border border-purple-500/40 z-20 shadow-[0_0_10px_rgba(139,92,246,0.3)]"></div>
               
-              {/* Degree markings */}
+              {/* Degree markings with enhanced visibility */}
               {Array.from({ length: 72 }).map((_, i) => (
                 <div 
                   key={i} 
                   className={`absolute ${
                     i % 9 === 0 
-                      ? 'h-5 w-1 bg-gray-400/70' 
+                      ? 'h-6 w-1.5 bg-purple-400/70' 
                       : i % 3 === 0 
-                        ? 'h-3 w-0.5 bg-gray-400/50' 
-                        : 'h-2 w-0.5 bg-gray-400/30'
-                  }`}
+                        ? 'h-4 w-1 bg-purple-400/50' 
+                        : 'h-2 w-0.5 bg-purple-400/30'
+                  } transition-all duration-300`}
                   style={{
-                    top: '8px',
+                    top: '4px',
                     left: '50%',
                     transform: `translateX(-50%) rotate(${i * 5}deg)`,
                     transformOrigin: 'bottom center',
@@ -239,24 +249,27 @@ const QiblaFinder: React.FC = () => {
                 ></div>
               ))}
               
-              {/* Cross lines */}
-              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/50"></div>
-              <div className="absolute top-0 left-1/2 h-full w-0.5 bg-gray-600/50 -translate-x-1/2"></div>
+              {/* Cross lines with enhanced styling */}
+              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/30"></div>
+              <div className="absolute top-0 left-1/2 h-full w-0.5 bg-indigo-500/30 -translate-x-1/2"></div>
               
-              {/* Diagonal lines */}
+              {/* Diagonal lines with enhanced styling */}
               <div className="absolute top-0 left-0 w-full h-full">
                 <div className="absolute top-0 left-0 w-full h-full" 
                      style={{ transform: 'rotate(45deg)' }}>
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/30 -translate-y-1/2"></div>
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/20 -translate-y-1/2"></div>
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full" 
                      style={{ transform: 'rotate(-45deg)' }}>
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-600/30 -translate-y-1/2"></div>
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500/20 -translate-y-1/2"></div>
                 </div>
               </div>
+              
+              {/* Subtle pulse effect */}
+              <div className="absolute inset-0 rounded-full pulse-animation opacity-0"></div>
             </div>
             
-            {/* Kaaba symbol at the top */}
+            {/* Kaaba symbol at the top with enhanced styling */}
             <div 
               className="absolute z-30 transition-transform"
               style={{ 
@@ -266,33 +279,43 @@ const QiblaFinder: React.FC = () => {
               }}
             >
               <div className="w-12 h-12 flex flex-col items-center">
-                <div className="w-8 h-8 bg-black border border-yellow-500 flex items-center justify-center">
+                <div className="w-8 h-8 bg-black border-2 border-yellow-500 flex items-center justify-center
+                                shadow-[0_0_10px_rgba(234,179,8,0.4)]">
                   <div className="w-6 h-1 bg-yellow-500"></div>
                 </div>
               </div>
             </div>
             
-            {/* Improved Compass needles with better alignment */}
+            {/* Improved Compass needles with better alignment and visual appeal */}
             <div 
               className="absolute top-1/2 left-1/2 transition-transform duration-300 ease-out z-20"
               style={{ transform: `translate(-50%, -50%) rotate(${compassRotation}deg)` }}
             >
-              {/* Needle design with perfect alignment */}
+              {/* Needle design with perfect alignment and enhanced styling */}
               <div className="relative flex flex-col items-center">
-                {/* North pointing needle (red) - reduced height for better fit */}
-                <div className="absolute w-3 h-28 bg-gradient-to-t from-red-900 via-red-700 to-red-500 rounded-t-full shadow-lg -mt-28 left-1/2 -translate-x-1/2"></div>
+                {/* North pointing needle (red) with glow effect */}
+                <div className="absolute w-3 h-28 bg-gradient-to-t from-red-900 via-red-700 to-red-500 
+                                rounded-t-full -mt-28 left-1/2 -translate-x-1/2
+                                shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
                 
-                {/* South pointing needle (blue) - reduced height for better fit */}
-                <div className="absolute w-3 h-28 bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 rounded-b-full shadow-lg mt-0 left-1/2 -translate-x-1/2"></div>
+                {/* South pointing needle (blue) with glow effect */}
+                <div className="absolute w-3 h-28 bg-gradient-to-b from-blue-700 via-blue-600 to-blue-500 
+                                rounded-b-full mt-0 left-1/2 -translate-x-1/2
+                                shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
                 
-                {/* Center pivot */}
-                <div className="absolute w-10 h-10 rounded-full bg-gray-300/20 border-2 border-gray-400/30 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                {/* Premium center pivot with subtle glow */}
+                <div className="absolute w-10 h-10 rounded-full bg-gradient-to-br from-gray-600/60 to-gray-800/60 
+                                backdrop-blur-md border-2 border-gray-400/40 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                                shadow-[0_0_8px_rgba(156,163,175,0.3)]"></div>
               </div>
             </div>
           </div>
           
           {qiblaAngle !== null && (
-            <div className="qibla-info rounded-2xl px-8 py-5 text-center bg-gray-800/90 shadow-lg border border-gray-600/30 w-80">
+            <div className="qibla-info rounded-2xl px-8 py-5 text-center 
+                           bg-gradient-to-br from-gray-800/90 via-gray-800/80 to-gray-900/90 
+                           shadow-lg border border-purple-500/30 backdrop-blur-md w-80
+                           hover:shadow-[0_8px_30px_rgba(139,92,246,0.15)] transition-all duration-300">
               <p className="text-xl font-semibold mb-2 text-gray-200 flex items-center justify-center">
                 <Navigation size={18} className={`${isRTL ? 'ml-2' : 'mr-2'} text-purple-400`} />
                 {getTranslation("Qibla Direction")}: {Math.round(qiblaAngle)}°
@@ -310,7 +333,10 @@ const QiblaFinder: React.FC = () => {
               {needsCalibration && (
                 <button 
                   onClick={calibrateCompass}
-                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} text-xs font-medium text-gray-200 bg-purple-900/50 px-3 py-1.5 rounded-full hover:bg-purple-800/50 transition-all mx-auto`}
+                  className={`mt-3 flex items-center justify-center ${isRTL ? 'space-x-reverse' : 'space-x-1'} 
+                             text-xs font-medium text-gray-200 bg-purple-900/50 px-3 py-1.5 rounded-full 
+                             hover:bg-purple-800/60 transition-all mx-auto
+                             shadow-[0_0_10px_rgba(139,92,246,0.2)] hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]`}
                 >
                   <RotateCw size={12} className={isRTL ? 'ml-1' : 'mr-1'} />
                   <span>{getTranslation("Calibrate Compass")}</span>
@@ -320,6 +346,28 @@ const QiblaFinder: React.FC = () => {
           )}
         </>
       )}
+
+      {/* Add the pulse animation keyframes */}
+      <style jsx>{`
+        @keyframes pulse-glow {
+          0% {
+            opacity: 0;
+            box-shadow: 0 0 5px 0 rgba(139, 92, 246, 0.5);
+          }
+          50% {
+            opacity: 0.1;
+            box-shadow: 0 0 20px 2px rgba(139, 92, 246, 0.7);
+          }
+          100% {
+            opacity: 0;
+            box-shadow: 0 0 5px 0 rgba(139, 92, 246, 0.5);
+          }
+        }
+        
+        .pulse-animation {
+          animation: pulse-glow 3s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };
